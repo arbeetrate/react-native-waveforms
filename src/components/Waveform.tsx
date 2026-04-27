@@ -1,9 +1,7 @@
-import { useMemo } from 'react';
 import Svg from 'react-native-svg';
 import type { WaveformProps } from '../types';
+import { useProcessedSamples } from '../hooks/useProcessedSamples';
 import { builtInRenderers } from '../renderers';
-import { downsamplePeak } from '../utils/downsample';
-import { normalize } from '../utils/normalize';
 
 const DEFAULT_COLOR = '#000';
 const DEFAULT_GAP = 1;
@@ -22,17 +20,12 @@ export const Waveform = ({
   strokeWidth,
   fillOpacity,
 }: WaveformProps) => {
-  const processed = useMemo(() => {
-    const normalized = normalize(samples, inputRange);
-    if (barWidth !== undefined && barWidth > 0) {
-      const stride = barWidth + gap;
-      const capacity = Math.max(1, Math.floor((width + gap) / stride));
-      if (normalized.length > capacity) {
-        return downsamplePeak(normalized, capacity);
-      }
-    }
-    return normalized;
-  }, [samples, inputRange, barWidth, gap, width]);
+  const processed = useProcessedSamples(samples, {
+    width,
+    inputRange,
+    barWidth,
+    gap,
+  });
 
   const Renderer =
     typeof renderer === 'function' ? renderer : builtInRenderers[renderer];

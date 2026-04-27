@@ -41,3 +41,12 @@ export type WaveformProps = {
   strokeWidth?: number;
   fillOpacity?: number;
 };
+
+export type PlayerWaveformProps = WaveformProps & {
+  progressColor?: string;
+  animationDuration?: number;
+  progress?: number;
+  positionMs?: number;
+  durationMs?: number;
+  isPlaying?: boolean;
+};

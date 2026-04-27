@@ -98,6 +98,9 @@
   "packageManager": "yarn@4.11.0",
   "jest": {
     "preset": "react-native",
+    "setupFiles": [
+      "<rootDir>/jest-setup.ts"
+    ],
     "modulePathIgnorePatterns": [
       "<rootDir>/example/",
       "<rootDir>/lib/"
