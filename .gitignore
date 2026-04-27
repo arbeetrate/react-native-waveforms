@@ -9,6 +9,9 @@
 .vscode/
 jsconfig.json
 
+# Claude Code
+.claude/
+
 # Xcode
 #
 build/

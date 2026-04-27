@@ -1,0 +1,35 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+    groups:
+      dev-deps:
+        dependency-type: development
+        update-types:
+          - minor
+          - patch
+    ignore:
+      # Major bumps for these are intentionally manual — they tend to drag
+      # peer-dependency ranges and require coordinated example app updates.
+      - dependency-name: react
+        update-types: [version-update:semver-major]
+      - dependency-name: react-native
+        update-types: [version-update:semver-major]
+      - dependency-name: react-native-reanimated
+        update-types: [version-update:semver-major]
+      - dependency-name: react-native-svg
+        update-types: [version-update:semver-major]
+
+  - package-ecosystem: npm
+    directory: /example
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

@@ -15,17 +15,6 @@
   "files": [
     "src",
     "lib",
-    "android",
-    "ios",
-    "cpp",
-    "*.podspec",
-    "react-native.config.js",
-    "!ios/build",
-    "!android/build",
-    "!android/gradle",
-    "!android/gradlew",
-    "!android/gradlew.bat",
-    "!android/local.properties",
     "!**/__tests__",
     "!**/__fixtures__",
     "!**/__mocks__",
@@ -35,26 +24,39 @@
     "example": "yarn workspace react-native-waveforms-example",
     "clean": "del-cli lib",
     "prepare": "bob build",
+    "prepack": "bob build",
     "typecheck": "tsc",
-    "lint": "eslint \"**/*.{js,ts,tsx}\""
+    "lint": "eslint \"**/*.{js,ts,tsx}\"",
+    "test": "jest --passWithNoTests",
+    "size": "size-limit",
+    "release": "release-it"
   },
   "keywords": [
     "react-native",
+    "expo",
     "ios",
-    "android"
+    "android",
+    "web",
+    "audio",
+    "waveform",
+    "visualizer",
+    "svg",
+    "reanimated"
   ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/USER/react-native-waveforms.git"
   },
-  "author": "Rastislav Balcerčík <rasto.balcercik@gmail.com> (https://github.com/USER)",
+  "author": "arbeetrate (https://github.com/USER)",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/USER/react-native-waveforms/issues"
   },
   "homepage": "https://github.com/USER/react-native-waveforms#readme",
   "publishConfig": {
-    "registry": "https://registry.npmjs.org/"
+    "registry": "https://registry.npmjs.org/",
+    "access": "public",
+    "provenance": true
   },
   "devDependencies": {
     "@eslint/compat": "^2.0.3",
@@ -62,27 +64,76 @@
     "@eslint/js": "^10.0.1",
     "@react-native/babel-preset": "0.85.0",
     "@react-native/eslint-config": "0.85.0",
+    "@release-it/conventional-changelog": "^11.0.0",
+    "@size-limit/preset-small-lib": "^11.2.0",
+    "@types/jest": "^30.0.0",
     "@types/react": "^19.2.0",
     "del-cli": "^7.0.0",
     "eslint": "^9.39.4",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-ft-flow": "^3.0.11",
     "eslint-plugin-prettier": "^5.5.5",
+    "jest": "^30.0.0",
     "prettier": "^3.8.1",
     "react": "19.2.0",
     "react-native": "0.83.6",
     "react-native-builder-bob": "^0.41.0",
+    "react-native-reanimated": "^4.0.0",
+    "react-native-svg": "^15.13.0",
+    "release-it": "^19.0.0",
+    "size-limit": "^11.2.0",
     "turbo": "^2.8.21",
     "typescript": "^6.0.2"
   },
   "peerDependencies": {
-    "react": "*",
-    "react-native": "*"
+    "react": ">=18",
+    "react-native": ">=0.74",
+    "react-native-reanimated": ">=3.10",
+    "react-native-svg": ">=15"
   },
   "workspaces": [
     "example"
   ],
   "packageManager": "yarn@4.11.0",
+  "jest": {
+    "preset": "react-native",
+    "modulePathIgnorePatterns": [
+      "<rootDir>/example/",
+      "<rootDir>/lib/"
+    ]
+  },
+  "size-limit": [
+    {
+      "path": "lib/module/index.js",
+      "limit": "10 KB",
+      "ignore": [
+        "react",
+        "react-native",
+        "react-native-svg",
+        "react-native-reanimated"
+      ]
+    }
+  ],
+  "release-it": {
+    "git": {
+      "commitMessage": "chore: release v${version}",
+      "tagName": "v${version}"
+    },
+    "npm": {
+      "publish": true
+    },
+    "github": {
+      "release": true
+    },
+    "plugins": {
+      "@release-it/conventional-changelog": {
+        "preset": {
+          "name": "angular"
+        },
+        "infile": "CHANGELOG.md"
+      }
+    }
+  },
   "react-native-builder-bob": {
     "source": "src",
     "output": "lib",
@@ -112,7 +163,9 @@
     "type": "library",
     "languages": "js",
     "tools": [
-      "eslint"
+      "eslint",
+      "jest",
+      "release-it"
     ],
     "version": "0.62.0"
   }

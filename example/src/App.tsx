@@ -1,12 +1,12 @@
 import { Text, View, StyleSheet } from 'react-native';
-import { multiply } from 'react-native-waveforms';
-
-const result = multiply(3, 7);
 
 export default function App() {
   return (
     <View style={styles.container}>
-      <Text>Result: {result}</Text>
+      <Text style={styles.title}>react-native-waveforms</Text>
+      <Text style={styles.subtitle}>
+        In development. Components land in a follow-up commit.
+      </Text>
     </View>
   );
 }
@@ -16,5 +16,16 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    padding: 24,
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: '600',
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 14,
+    opacity: 0.7,
+    textAlign: 'center',
   },
 });
