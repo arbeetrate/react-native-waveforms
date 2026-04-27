@@ -1,8 +1,8 @@
 const path = require('path');
 const { getDefaultConfig } = require('@expo/metro-config');
-const { withMetroConfig } = require('react-native-monorepo-config');
 
-const root = path.resolve(__dirname, '..');
+const projectRoot = __dirname;
+const workspaceRoot = path.resolve(projectRoot, '..');
 
 /**
  * Metro configuration
@@ -10,9 +10,13 @@ const root = path.resolve(__dirname, '..');
  *
  * @type {import('metro-config').MetroConfig}
  */
-const config = withMetroConfig(getDefaultConfig(__dirname), {
-  root,
-  dirname: __dirname,
-});
+const config = getDefaultConfig(projectRoot);
+
+config.watchFolders = [workspaceRoot];
+config.resolver.nodeModulesPaths = [
+  path.resolve(projectRoot, 'node_modules'),
+  path.resolve(workspaceRoot, 'node_modules'),
+];
+config.resolver.disableHierarchicalLookup = true;
 
 module.exports = config;
