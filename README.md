@@ -31,11 +31,11 @@ Follow the setup guides for each peer dependency:
 
 ## Peer dependencies
 
-| Package                   | Version |
-| ------------------------- | ------- |
-| `react`                   | `>=18`  |
+| Package                   | Version  |
+| ------------------------- | -------- |
+| `react`                   | `>=18`   |
 | `react-native`            | `>=0.74` |
-| `react-native-svg`        | `>=15`  |
+| `react-native-svg`        | `>=15`   |
 | `react-native-reanimated` | `>=3.10` |
 
 ## Usage

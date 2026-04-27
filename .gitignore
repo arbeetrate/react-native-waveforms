@@ -12,6 +12,9 @@ jsconfig.json
 # Claude Code
 .claude/
 
+# Cursor
+.cursor/
+
 # Xcode
 #
 build/
