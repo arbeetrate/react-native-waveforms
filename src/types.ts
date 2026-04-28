@@ -25,6 +25,12 @@ export type RendererProps = {
   // line / area-specific
   strokeWidth?: number;
   fillOpacity?: number;
+  // interactivity (forwarded by <Waveform>)
+  activeIndex?: number | null;
+  activeColor?: string;
+  activeScale?: number;
+  activePushRange?: number;
+  activeTransitionMs?: number;
 };
 
 export type WaveformRenderer = (props: RendererProps) => ReactNode;
@@ -46,6 +52,26 @@ export type WaveformProps = {
   // line / area-specific
   strokeWidth?: number;
   fillOpacity?: number;
+  /** Color shown for the sample currently under the cursor (web hover) or
+   * touch (native tap / drag). Enabling this turns on the hit overlay. */
+  activeColor?: string;
+  /** Width multiplier for the active bar (e.g. 1.5 = 50% wider). The bar
+   * stays centered on its slot, growing equally to both sides. Default 1
+   * (no scale). Bars-only. */
+  activeScale?: number;
+  /** How many neighbouring bars on each side get pushed away from the
+   * active bar (linear decay). Auto-defaults to 4 when `activeScale > 1`,
+   * `0` disables. Bars-only. */
+  activePushRange?: number;
+  /** CSS transition duration in ms applied to the fill / width change on
+   * web. No effect on native (snaps). Default 150. */
+  activeTransitionMs?: number;
+  /** Fired when the active sample changes (hover / drag). `null` on
+   * leave / release. */
+  onActiveSampleChange?: (
+    index: number | null,
+    sample: number | undefined
+  ) => void;
 };
 
 export type PlayerWaveformProps = WaveformProps & {

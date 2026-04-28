@@ -16,12 +16,16 @@ export const useProcessedSamples = (
 ): number[] =>
   useMemo(() => {
     const normalized = normalize(samples, inputRange);
-    if (barWidth !== undefined && barWidth > 0) {
-      const stride = barWidth + gap;
-      const capacity = Math.max(1, Math.floor((width + gap) / stride));
-      if (normalized.length > capacity) {
-        return downsamplePeak(normalized, capacity);
-      }
+    // Always downsample so the displayed sample count actually fits the
+    // chart. When `barWidth` isn't provided we use 1px as the minimum bar
+    // width — without this clamp many extra samples render beyond `width`,
+    // get SVG-clipped, but throw off any logic (hover, layout) that uses
+    // `processed.length` as the visual count.
+    const effectiveBarWidth = barWidth !== undefined && barWidth > 0 ? barWidth : 1;
+    const stride = effectiveBarWidth + gap;
+    const capacity = Math.max(1, Math.floor((width + gap) / stride));
+    if (normalized.length > capacity) {
+      return downsamplePeak(normalized, capacity);
     }
     return normalized;
   }, [samples, inputRange, barWidth, gap, width]);

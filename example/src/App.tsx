@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import {
   PlayerWaveform,
   RecorderWaveform,
@@ -7,6 +7,7 @@ import {
   type RecorderWaveformHandle,
 } from 'react-native-waveforms';
 import { sampleAmplitudes } from './sample-data';
+import { useMicMeter } from './useMicMeter';
 
 const WIDTH = 320;
 const HEIGHT = 80;
@@ -63,6 +64,16 @@ export default function App() {
   const noPrefillRecorderRef = useRef<RecorderWaveformHandle>(null);
   const fadeScrollRef = useRef<RecorderWaveformHandle>(null);
   const fadeMorphRef = useRef<RecorderWaveformHandle>(null);
+  const micRecorderRef = useRef<RecorderWaveformHandle>(null);
+  const [isMicActive, setIsMicActive] = useState(false);
+  const micStatus = useMicMeter(micRecorderRef, isMicActive);
+  const toggleMic = useCallback(() => {
+    setIsMicActive((v) => {
+      const next = !v;
+      if (!next) micRecorderRef.current?.reset();
+      return next;
+    });
+  }, []);
   const meterRefs = useMemo(
     () => [
       recorderRef,
@@ -87,6 +98,20 @@ export default function App() {
           width={WIDTH}
           height={HEIGHT}
           color="#2563eb"
+          gap={2}
+          rounded
+        />
+      </Demo>
+
+      <Demo label="bars · hover / tap (web + native)">
+        <Waveform
+          samples={sampleAmplitudes}
+          width={WIDTH}
+          height={HEIGHT}
+          color="#2563eb"
+          activeColor="#f97316"
+          activeScale={1.8}
+          activeTransitionMs={180}
           gap={2}
           rounded
         />
@@ -124,6 +149,19 @@ export default function App() {
           renderer="area"
           color="#7c3aed"
           fillOpacity={0.85}
+        />
+      </Demo>
+
+      <Demo label="area · hover / tap (web + native)">
+        <Waveform
+          samples={sampleAmplitudes}
+          width={WIDTH}
+          height={HEIGHT}
+          renderer="area"
+          color="#7c3aed"
+          fillOpacity={0.7}
+          activeColor="#f97316"
+          activeTransitionMs={150}
         />
       </Demo>
 
@@ -249,6 +287,34 @@ export default function App() {
           rounded
         />
       </Demo>
+
+      <Demo label="recorder · live microphone (web)">
+        <RecorderWaveform
+          ref={micRecorderRef}
+          width={WIDTH}
+          height={HEIGHT}
+          color="#16a34a"
+          baseline="bottom"
+          transitionDuration={120}
+          barWidth={3}
+          gap={2}
+          rounded
+        />
+        <Pressable onPress={toggleMic} style={styles.micButton}>
+          <Text style={styles.micButtonText}>
+            {isMicActive ? 'Stop microphone' : 'Start microphone'}
+          </Text>
+        </Pressable>
+        <Text style={styles.micStatus}>
+          {micStatus === 'requesting'
+            ? 'Requesting microphone permission…'
+            : micStatus === 'denied'
+              ? 'Microphone access denied or unavailable.'
+              : micStatus === 'active'
+                ? 'Listening — speak into your mic.'
+                : 'Tap Start to capture live audio.'}
+        </Text>
+      </Demo>
     </ScrollView>
   );
 }
@@ -301,5 +367,22 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     opacity: 0.6,
     fontFamily: 'monospace',
+  },
+  micButton: {
+    alignSelf: 'flex-start',
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 8,
+    backgroundColor: '#16a34a',
+    marginTop: 4,
+  },
+  micButtonText: {
+    color: '#ffffff',
+    fontWeight: '600',
+    fontSize: 13,
+  },
+  micStatus: {
+    fontSize: 12,
+    opacity: 0.7,
   },
 });
