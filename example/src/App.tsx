@@ -1,6 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { PlayerWaveform, Waveform } from 'react-native-waveforms';
+import {
+  PlayerWaveform,
+  RecorderWaveform,
+  Waveform,
+  type RecorderWaveformHandle,
+} from 'react-native-waveforms';
 import { sampleAmplitudes } from './sample-data';
 
 const WIDTH = 320;
@@ -15,8 +20,61 @@ const useLoopingPlayback = (durationMs = 4000) => {
   return { iteration, durationMs };
 };
 
+// Pre-generated, deterministic, finite cycle of fake amplitudes — reused
+// forever by the shared meter so we never allocate per-tick and `i` never
+// grows beyond the buffer length.
+const FAKE_METER_LEN = 240;
+const FAKE_METER_TICK_MS = 200;
+const fakeSamples: readonly number[] = (() => {
+  const out = new Array<number>(FAKE_METER_LEN);
+  let r = 1234567;
+  for (let i = 0; i < FAKE_METER_LEN; i++) {
+    const envelope = 0.5 + 0.4 * Math.sin(i * 0.04);
+    r = (r * 9301 + 49297) % 233280;
+    const jitter = (r / 233280) * 0.4;
+    out[i] = Math.round(Math.min(1, envelope * jitter + 0.05) * 100) / 100;
+  }
+  return out;
+})();
+
+// One interval, broadcast to many recorders. Cycles the pre-generated
+// buffer so RAM stays flat for as long as the example is open.
+const useSharedFakeMeter = (
+  refs: readonly React.RefObject<RecorderWaveformHandle | null>[]
+) => {
+  useEffect(() => {
+    let i = 0;
+    const id = setInterval(() => {
+      const sample = fakeSamples[i] as number;
+      i = (i + 1) % FAKE_METER_LEN;
+      for (let r = 0; r < refs.length; r++) {
+        refs[r]!.current?.push(sample);
+      }
+    }, FAKE_METER_TICK_MS);
+    return () => clearInterval(id);
+  }, [refs]);
+};
+
 export default function App() {
   const { iteration, durationMs } = useLoopingPlayback(4000);
+  const recorderRef = useRef<RecorderWaveformHandle>(null);
+  const morphRecorderRef = useRef<RecorderWaveformHandle>(null);
+  const leftRecorderRef = useRef<RecorderWaveformHandle>(null);
+  const noPrefillRecorderRef = useRef<RecorderWaveformHandle>(null);
+  const fadeScrollRef = useRef<RecorderWaveformHandle>(null);
+  const fadeMorphRef = useRef<RecorderWaveformHandle>(null);
+  const meterRefs = useMemo(
+    () => [
+      recorderRef,
+      morphRecorderRef,
+      leftRecorderRef,
+      noPrefillRecorderRef,
+      fadeScrollRef,
+      fadeMorphRef,
+    ],
+    []
+  );
+  useSharedFakeMeter(meterRefs);
 
   return (
     <ScrollView style={styles.scroll} contentContainerStyle={styles.container}>
@@ -97,6 +155,98 @@ export default function App() {
           isPlaying
           positionMs={0}
           durationMs={durationMs}
+        />
+      </Demo>
+
+      <Demo label="recorder · live samples (scroll)">
+        <RecorderWaveform
+          ref={recorderRef}
+          width={WIDTH}
+          height={HEIGHT}
+          color="#dc2626"
+          baseline="bottom"
+          transitionDuration={200}
+          barWidth={3}
+          gap={2}
+          rounded
+        />
+      </Demo>
+
+      <Demo label="recorder · live samples (morph)">
+        <RecorderWaveform
+          ref={morphRecorderRef}
+          width={WIDTH}
+          height={HEIGHT}
+          color="#0f766e"
+          baseline="bottom"
+          transition="morph"
+          transitionDuration={300}
+          barWidth={3}
+          gap={2}
+          rounded
+        />
+      </Demo>
+
+      <Demo label="recorder · scroll, direction=left">
+        <RecorderWaveform
+          ref={leftRecorderRef}
+          width={WIDTH}
+          height={HEIGHT}
+          color="#7c3aed"
+          baseline="bottom"
+          direction="left"
+          transitionDuration={200}
+          barWidth={3}
+          gap={2}
+          rounded
+        />
+      </Demo>
+
+      <Demo label="recorder · scroll, prefill=false (legacy)">
+        <RecorderWaveform
+          ref={noPrefillRecorderRef}
+          width={WIDTH}
+          height={HEIGHT}
+          color="#0891b2"
+          baseline="bottom"
+          prefill={false}
+          transitionDuration={200}
+          barWidth={3}
+          gap={2}
+          rounded
+        />
+      </Demo>
+
+      <Demo label="recorder · scroll, fadeIn=4 fadeOut=4">
+        <RecorderWaveform
+          ref={fadeScrollRef}
+          width={WIDTH}
+          height={HEIGHT}
+          color="#ea580c"
+          baseline="bottom"
+          fadeIn={4}
+          fadeOut={4}
+          transitionDuration={200}
+          barWidth={3}
+          gap={2}
+          rounded
+        />
+      </Demo>
+
+      <Demo label="recorder · morph, fadeIn=3 fadeOut=3">
+        <RecorderWaveform
+          ref={fadeMorphRef}
+          width={WIDTH}
+          height={HEIGHT}
+          color="#db2777"
+          baseline="bottom"
+          transition="morph"
+          fadeIn={4}
+          fadeOut={4}
+          transitionDuration={300}
+          barWidth={3}
+          gap={2}
+          rounded
         />
       </Demo>
     </ScrollView>

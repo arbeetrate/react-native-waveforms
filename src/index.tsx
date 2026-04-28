@@ -1,4 +1,5 @@
 export { PlayerWaveform } from './components/PlayerWaveform';
+export { RecorderWaveform } from './components/RecorderWaveform';
 export { Waveform } from './components/Waveform';
 export { AreaRenderer, BarsRenderer, LineRenderer } from './renderers';
 export type {
@@ -6,6 +7,11 @@ export type {
   BuiltInRendererName,
   InputRange,
   PlayerWaveformProps,
+  RecorderDirection,
+  RecorderEasing,
+  RecorderTransition,
+  RecorderWaveformHandle,
+  RecorderWaveformProps,
   RendererProps,
   Sample,
   WaveformProps,

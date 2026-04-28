@@ -102,9 +102,13 @@ export const PlayerWaveform = ({
     }
   }, [isPlaying, target, animationDuration, progressValue]);
 
-  const animatedRectProps = useAnimatedProps(() => ({
-    width: progressValue.value * width,
-  }));
+  const animatedRectProps = useAnimatedProps(() => {
+    // Clamp the clip rect width to a valid SVG range. Reanimated can briefly
+    // settle just outside [0, 1] when an animation is interrupted (e.g. by
+    // a parent remount), and a negative <rect> width crashes the SVG layer.
+    const raw = progressValue.value * width;
+    return { width: raw < 0 ? 0 : raw > width ? width : raw };
+  });
 
   const Renderer =
     typeof renderer === 'function' ? renderer : builtInRenderers[renderer];

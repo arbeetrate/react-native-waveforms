@@ -23,8 +23,9 @@
   "scripts": {
     "example": "yarn workspace react-native-waveforms-example",
     "clean": "del-cli lib",
-    "prepare": "bob build",
-    "prepack": "bob build",
+    "build": "bob build",
+    "prepare": "echo 'prepare build step disabled — run `yarn build` manually'",
+    "prepack": "echo 'prepack build step disabled — run `yarn build` manually'",
     "typecheck": "tsc",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "test": "jest --passWithNoTests",

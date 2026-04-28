@@ -9,6 +9,7 @@ jest.mock('react-native-reanimated', () => {
       createAnimatedComponent: <T>(Component: T): T => Component,
     },
     useSharedValue: sharedValue,
+    makeMutable: sharedValue,
     useAnimatedProps: (worklet: () => unknown) => {
       try {
         return worklet();
@@ -31,3 +32,10 @@ jest.mock('react-native-reanimated', () => {
     Easing: { linear: noop, ease: noop, inOut: () => noop },
   };
 });
+
+jest.mock('react-native-worklets', () => ({
+  __esModule: true,
+  scheduleOnUI: <Fn extends (...args: unknown[]) => unknown>(fn: Fn) => fn(),
+  runOnJS: <Fn extends (...args: unknown[]) => unknown>(fn: Fn) => fn,
+  runOnUI: <Fn extends (...args: unknown[]) => unknown>(fn: Fn) => fn,
+}));

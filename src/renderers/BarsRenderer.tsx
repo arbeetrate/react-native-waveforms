@@ -15,8 +15,10 @@ export const BarsRenderer = ({
   const count = samples.length;
   if (count === 0 || width <= 0 || height <= 0) return null;
 
-  const computedBarWidth =
-    barWidth ?? Math.max(1, (width - (count - 1) * gap) / count);
+  const computedBarWidth = Math.max(
+    0,
+    barWidth ?? Math.max(1, (width - (count - 1) * gap) / count)
+  );
   const stride = computedBarWidth + gap;
   const radius =
     rounded === true ? computedBarWidth / 2 : rounded === false ? 0 : rounded;
