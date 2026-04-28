@@ -19,4 +19,16 @@ config.resolver.nodeModulesPaths = [
 ];
 config.resolver.disableHierarchicalLookup = true;
 
+// Read the package's "exports" field and prefer its "source" condition so
+// `react-native-waveforms` resolves to ../src/index.tsx for HMR-friendly dev
+// instead of the prebuilt lib/module/index.js.
+config.resolver.unstable_enablePackageExports = true;
+config.resolver.unstable_conditionNames = [
+  'source',
+  'react-native',
+  'browser',
+  'require',
+  'import',
+];
+
 module.exports = config;
