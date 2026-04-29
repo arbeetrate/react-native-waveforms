@@ -11144,9 +11144,10 @@ __metadata:
     typescript: "npm:^6.0.2"
   peerDependencies:
     react: ">=18"
-    react-native: ">=0.74"
-    react-native-reanimated: ">=3.10"
+    react-native: ">=0.81"
+    react-native-reanimated: ">=4.0.0"
     react-native-svg: ">=15"
+    react-native-worklets: ">=0.3.0"
   languageName: unknown
   linkType: soft
 
