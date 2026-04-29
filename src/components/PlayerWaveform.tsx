@@ -83,7 +83,7 @@ export const PlayerWaveform = ({
       }
     }
     // Intentionally not in deps: target. Seek-while-playing is not supported
-    // in this version — consumers should pause -> seek -> play.
+    // in this version - consumers should pause -> seek -> play.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPlaying, durationMs, progressValue]);
 

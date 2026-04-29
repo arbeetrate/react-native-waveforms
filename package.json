@@ -1,6 +1,6 @@
 {
   "name": "react-native-waveforms",
-  "version": "0.1.0",
+  "version": "0.1.0-rc.1",
   "description": "Cross-platform audio waveform visualizer for React Native, Expo and Web. Static, live recording and playback modes.",
   "main": "./lib/module/index.js",
   "types": "./lib/typescript/src/index.d.ts",
@@ -24,8 +24,8 @@
     "example": "yarn workspace react-native-waveforms-example",
     "clean": "del-cli lib",
     "build": "bob build",
-    "prepare": "echo 'prepare build step disabled — run `yarn build` manually'",
-    "prepack": "echo 'prepack build step disabled — run `yarn build` manually'",
+    "prepare": "echo 'prepare build step disabled - run `yarn build` manually'",
+    "prepack": "echo 'prepack build step disabled - run `yarn build` manually'",
     "typecheck": "tsc",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "test": "jest --passWithNoTests",
@@ -41,19 +41,22 @@
     "audio",
     "waveform",
     "visualizer",
+    "audio-visualizer",
+    "recorder",
+    "player",
     "svg",
     "reanimated"
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/USER/react-native-waveforms.git"
+    "url": "git+https://github.com/arbeetrate/react-native-waveforms.git"
   },
-  "author": "arbeetrate (https://github.com/USER)",
+  "author": "arbeetrate (https://github.com/arbeetrate)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/USER/react-native-waveforms/issues"
+    "url": "https://github.com/arbeetrate/react-native-waveforms/issues"
   },
-  "homepage": "https://github.com/USER/react-native-waveforms#readme",
+  "homepage": "https://github.com/arbeetrate/react-native-waveforms#readme",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/",
     "access": "public",
@@ -89,9 +92,10 @@
   },
   "peerDependencies": {
     "react": ">=18",
-    "react-native": ">=0.74",
-    "react-native-reanimated": ">=3.10",
-    "react-native-svg": ">=15"
+    "react-native": ">=0.81",
+    "react-native-reanimated": ">=4.0.0",
+    "react-native-svg": ">=15",
+    "react-native-worklets": ">=0.3.0"
   },
   "workspaces": [
     "example"

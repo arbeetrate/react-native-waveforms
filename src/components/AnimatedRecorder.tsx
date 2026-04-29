@@ -94,7 +94,7 @@ export const AnimatedRecorder = forwardRef<
       const incomingCount = incoming.length;
       if (incomingCount === 0) return;
 
-      // Mutate the targets buffer in place — no concat/slice allocations
+      // Mutate the targets buffer in place - no concat/slice allocations
       // per push.
       const targets = targetsRef.current;
       const cap = capacity;
@@ -112,7 +112,7 @@ export const AnimatedRecorder = forwardRef<
       const animateAmplitudes = !enableScroll;
       const localEasing = easing ?? Easing.linear;
 
-      // Write bar shared values directly from JS — no worklet closure
+      // Write bar shared values directly from JS - no worklet closure
       // captures the targets array.
       if (animateAmplitudes) {
         for (let i = 0; i < bars.length; i++) {
@@ -128,7 +128,7 @@ export const AnimatedRecorder = forwardRef<
       }
 
       // translateX bump must be atomic on UI thread (read-modify-write
-      // mid-animation). scheduleOnUI captures only primitives — no arrays.
+      // mid-animation). scheduleOnUI captures only primitives - no arrays.
       if (enableScroll && smoothScroll && dropCount > 0) {
         const bumpPx = dropCount * stride;
         const localDuration = duration;
@@ -268,7 +268,7 @@ const AnimatedBar = memo(function AnimatedBar({
     'worklet';
     const a = sv.value;
     const ampClamped = a < 0 ? 0 : a > 1 ? 1 : a;
-    // Touch translateX ONLY when fade is enabled — Reanimated tracks reads
+    // Touch translateX ONLY when fade is enabled - Reanimated tracks reads
     // at runtime, so without fade this worklet does not depend on translateX
     // and stays idle during scroll animation.
     let env = 1;

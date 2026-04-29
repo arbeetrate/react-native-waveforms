@@ -1,35 +1,49 @@
 version: 2
 updates:
+  # Library deps - monthly, single grouped PR, minor + patch only.
+  # Major bumps stay manual to keep peer-dependency ranges intentional.
   - package-ecosystem: npm
     directory: /
     schedule:
-      interval: weekly
-    open-pull-requests-limit: 10
+      interval: monthly
+    open-pull-requests-limit: 1
     groups:
-      dev-deps:
-        dependency-type: development
+      all-deps:
+        patterns:
+          - '*'
         update-types:
           - minor
           - patch
     ignore:
-      # Major bumps for these are intentionally manual — they tend to drag
-      # peer-dependency ranges and require coordinated example app updates.
-      - dependency-name: react
-        update-types: [version-update:semver-major]
-      - dependency-name: react-native
-        update-types: [version-update:semver-major]
-      - dependency-name: react-native-reanimated
-        update-types: [version-update:semver-major]
-      - dependency-name: react-native-svg
-        update-types: [version-update:semver-major]
+      - dependency-name: '*'
+        update-types:
+          - version-update:semver-major
 
+  # Example app - monthly, single grouped PR, minor + patch only.
   - package-ecosystem: npm
     directory: /example
     schedule:
-      interval: weekly
-    open-pull-requests-limit: 5
+      interval: monthly
+    open-pull-requests-limit: 1
+    groups:
+      example-deps:
+        patterns:
+          - '*'
+        update-types:
+          - minor
+          - patch
+    ignore:
+      - dependency-name: '*'
+        update-types:
+          - version-update:semver-major
 
+  # GitHub Actions - monthly, single grouped PR.
   - package-ecosystem: github-actions
     directory: /
     schedule:
-      interval: weekly
+      interval: monthly
+    open-pull-requests-limit: 1
+    groups:
+      actions:
+        patterns:
+          - '*'

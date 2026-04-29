@@ -25,8 +25,8 @@ const getCurrentTranslateX = (el: HTMLElement): number => {
   const m = /^matrix(?:3d)?\(([^)]+)\)$/.exec(t);
   if (!m) return 0;
   const parts = m[1]!.split(',').map((s) => parseFloat(s.trim()));
-  // matrix(a,b,c,d,tx,ty) — tx is parts[4]
-  // matrix3d(...16 values) — tx is parts[12]
+  // matrix(a,b,c,d,tx,ty) - tx is parts[4]
+  // matrix3d(...16 values) - tx is parts[12]
   return parts[t.startsWith('matrix3d') ? 12 : 4] ?? 0;
 };
 
@@ -62,7 +62,7 @@ export const AnimatedRecorder = memo(
       const stride = barWidth + gap;
       const radius = resolveRadius(rounded, barWidth);
 
-      // Targets buffer mutated in place — same model as native impl.
+      // Targets buffer mutated in place - same model as native impl.
       const targetsRef = useRef<number[]>([]);
       if (targetsRef.current.length !== capacity) {
         targetsRef.current = buildInitialBuffer(
@@ -89,7 +89,7 @@ export const AnimatedRecorder = memo(
         const incomingCount = incoming.length;
         if (incomingCount === 0) return;
 
-        // Mutate targets in place — no concat/slice allocations.
+        // Mutate targets in place - no concat/slice allocations.
         const targets = targetsRef.current;
         const cap = capacity;
         const dropCount = incomingCount > cap ? cap : incomingCount;
@@ -105,7 +105,7 @@ export const AnimatedRecorder = memo(
 
         // Apply target heights to bar DOM nodes directly. In SCROLL mode
         // CSS transition is `none` so this is instant; in MORPH mode the
-        // browser interpolates from current to new at compositor level —
+        // browser interpolates from current to new at compositor level -
         // zero JS work per frame.
         const bars = barRefs.current;
         for (let i = 0; i < bars.length; i++) {
@@ -120,7 +120,7 @@ export const AnimatedRecorder = memo(
         }
 
         // Wrapper translateX bump animated via Web Animations API. The
-        // browser runs this on the compositor thread — no JS per frame,
+        // browser runs this on the compositor thread - no JS per frame,
         // no DOM mutations observable by extensions.
         if (enableScroll && smoothScroll && dropCount > 0) {
           const wrapper = wrapperRef.current;
@@ -235,7 +235,7 @@ export const AnimatedRecorder = memo(
       const fadeOutPx = fadeOut > 0 ? fadeOut * stride : 0;
       const useMask = fadeInPx > 0 || fadeOutPx > 0;
       // Static CSS gradient mask handles the edge fade purely on the
-      // compositor — no JS per frame, no per-bar env computation.
+      // compositor - no JS per frame, no per-bar env computation.
       const maskValue = useMask
         ? `linear-gradient(to right, transparent 0px, black ${fadeOutPx}px, black ${
             width - fadeInPx

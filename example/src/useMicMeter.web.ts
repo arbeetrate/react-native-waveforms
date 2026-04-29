@@ -4,7 +4,7 @@ import type { RecorderWaveformHandle } from 'react-native-waveforms';
 
 export type MicMeterStatus = 'idle' | 'requesting' | 'active' | 'denied';
 
-const TICK_MS = 50; // 20 Hz amplitude updates — matches typical mic-meter UX
+const TICK_MS = 50; // 20 Hz amplitude updates - matches typical mic-meter UX
 
 // Wires the browser microphone (via Web Audio API) to a RecorderWaveform
 // ref. Pushes RMS amplitude on a fixed interval while `isActive`.

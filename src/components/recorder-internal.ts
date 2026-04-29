@@ -2,12 +2,11 @@ import type {
   BarsBaseline,
   RecorderDirection,
   RecorderEasing,
-  RecorderWaveformHandle,
 } from '../types';
 
 export const DEFAULT_GAP = 1;
 export const DEFAULT_TRANSITION_MS = 100;
-export const FALLBACK_CAPACITY = 64;
+const FALLBACK_CAPACITY = 64;
 
 export const deriveCapacity = (
   width: number,
@@ -75,5 +74,3 @@ export type AnimatedRecorderProps = {
   smoothScroll: boolean;
   initialSamples?: readonly number[];
 };
-
-export type AnimatedRecorderRef = RecorderWaveformHandle;

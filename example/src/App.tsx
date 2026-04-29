@@ -21,7 +21,7 @@ const useLoopingPlayback = (durationMs = 4000) => {
   return { iteration, durationMs };
 };
 
-// Pre-generated, deterministic, finite cycle of fake amplitudes — reused
+// Pre-generated, deterministic, finite cycle of fake amplitudes - reused
 // forever by the shared meter so we never allocate per-tick and `i` never
 // grows beyond the buffer length.
 const FAKE_METER_LEN = 240;
@@ -311,7 +311,7 @@ export default function App() {
             : micStatus === 'denied'
               ? 'Microphone access denied or unavailable.'
               : micStatus === 'active'
-                ? 'Listening — speak into your mic.'
+                ? 'Listening - speak into your mic.'
                 : 'Tap Start to capture live audio.'}
         </Text>
       </Demo>

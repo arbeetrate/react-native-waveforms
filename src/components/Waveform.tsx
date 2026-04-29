@@ -17,7 +17,7 @@ const DEFAULT_ACTIVE_TRANSITION_MS = 150;
 // Web-only mouse event types passed through by react-native-web. RN doesn't
 // type these on its native View, but RNW forwards them at runtime. We use
 // `clientX` + a ref to the overlay to compute the pointer position
-// relative to it — `offsetX` is relative to the event's target node and
+// relative to it - `offsetX` is relative to the event's target node and
 // `currentTarget` can point to an RN Web wrapper element.
 type MouseLikeEvent = { clientX: number };
 
@@ -52,12 +52,12 @@ export const Waveform = ({
 
   const interactive = activeColor !== undefined;
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
-  // Typed loosely — RN Web exposes the underlying DOM div on this ref,
+  // Typed loosely - RN Web exposes the underlying DOM div on this ref,
   // RN native exposes the host component instance; we only call
   // `getBoundingClientRect` (web) so a permissive type is fine.
   const containerRef = useRef<unknown>(null);
 
-  // Notify parent on changes — but only when the index actually shifts.
+  // Notify parent on changes - but only when the index actually shifts.
   const lastNotifiedRef = useRef<number | null>(null);
   useEffect(() => {
     if (!onActiveSampleChange) return;
@@ -95,7 +95,7 @@ export const Waveform = ({
   // forwards the underlying DOM div through forwardRef), then convert
   // viewport-relative `clientX` into a position within the waveform.
   // We deliberately don't use `event.offsetX` (relative to the deepest
-  // event target — could be a bar inside the SVG) or `event.currentTarget`
+  // event target - could be a bar inside the SVG) or `event.currentTarget`
   // (RN Web wraps Views in extra divs in some configurations).
   const onMouseMove = useCallback(
     (e: MouseLikeEvent) => {
