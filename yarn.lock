@@ -11100,7 +11100,7 @@ __metadata:
     "@expo/metro-runtime": "npm:~55.0.10"
     expo: "npm:~55.0.17"
     expo-status-bar: "npm:~55.0.5"
-    react: "npm:19.2.0"
+    react: "npm:19.2.5"
     react-dom: "npm:19.2.0"
     react-native: "npm:0.83.6"
     react-native-builder-bob: "npm:^0.41.0"
@@ -11132,7 +11132,7 @@ __metadata:
     eslint-plugin-prettier: "npm:^5.5.5"
     jest: "npm:^30.0.0"
     prettier: "npm:^3.8.1"
-    react: "npm:19.2.0"
+    react: "npm:19.2.5"
     react-native: "npm:0.83.6"
     react-native-builder-bob: "npm:^0.41.0"
     react-native-reanimated: "npm:^4.0.0"
@@ -11252,10 +11252,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react@npm:19.2.0":
-  version: 19.2.0
-  resolution: "react@npm:19.2.0"
-  checksum: 10c0/1b6d64eacb9324725bfe1e7860cb7a6b8a34bc89a482920765ebff5c10578eb487e6b46b2f0df263bd27a25edbdae2c45e5ea5d81ae61404301c1a7192c38330
+"react@npm:19.2.5":
+  version: 19.2.5
+  resolution: "react@npm:19.2.5"
+  checksum: 10c0/4b5f231dbef92886f602533c9ce3bde04d99f0e71dfb5d794c43e02726efaad0421c08688f75fc98a6d6e1dc017372e1af7abbfecdc86a79968f461675931a7a
   languageName: node
   linkType: hard
 
