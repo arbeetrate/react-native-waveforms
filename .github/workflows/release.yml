@@ -38,6 +38,9 @@ jobs:
             echo "tag=latest" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Ensure npm supports trusted publishing
+        run: npm install -g npm@latest
+
       - name: Publish to npm
         run: npm publish --provenance --access public --tag "${DIST_TAG}"
         env:
