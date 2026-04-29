@@ -39,11 +39,8 @@ jobs:
           fi
 
       - name: Publish to npm
-        run: |
-          npm config set //registry.npmjs.org/:_authToken "${NPM_TOKEN}"
-          npm publish --provenance --access public --tag "${DIST_TAG}"
+        run: npm publish --provenance --access public --tag "${DIST_TAG}"
         env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           DIST_TAG: ${{ steps.tag.outputs.tag }}
 
       - name: Create GitHub Release
