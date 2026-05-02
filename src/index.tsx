@@ -5,7 +5,9 @@ export { AreaRenderer, BarsRenderer, LineRenderer } from './renderers';
 export type {
   BarsBaseline,
   BuiltInRendererName,
+  GradientStop,
   InputRange,
+  LinearGradientSpec,
   PlayerWaveformProps,
   RecorderDirection,
   RecorderEasing,
@@ -14,6 +16,7 @@ export type {
   RecorderWaveformProps,
   RendererProps,
   Sample,
+  WaveformColor,
   WaveformProps,
   WaveformRenderer,
 } from './types';

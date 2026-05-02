@@ -1,4 +1,11 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {
   View,
   type GestureResponderEvent,
@@ -9,6 +16,7 @@ import Svg from 'react-native-svg';
 import type { WaveformProps } from '../types';
 import { useProcessedSamples } from '../hooks/useProcessedSamples';
 import { builtInRenderers } from '../renderers';
+import { renderGradientDefs, resolveFill } from '../utils/resolveFill';
 
 const DEFAULT_COLOR = '#000';
 const DEFAULT_GAP = 1;
@@ -49,6 +57,16 @@ export const Waveform = ({
 
   const Renderer =
     typeof renderer === 'function' ? renderer : builtInRenderers[renderer];
+
+  const idBase = useId().replace(/:/g, '');
+  const baseFill = useMemo(
+    () => resolveFill(color, `wf-${idBase}-c`),
+    [color, idBase]
+  );
+  const activeFill = useMemo(
+    () => resolveFill(activeColor, `wf-${idBase}-a`),
+    [activeColor, idBase]
+  );
 
   const interactive = activeColor !== undefined;
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
@@ -118,13 +136,16 @@ export const Waveform = ({
     [updateFromX]
   );
 
+  const defs = renderGradientDefs([baseFill.def, activeFill.def]);
+
   const svgWithRenderer = (
     <Svg width={width} height={height}>
+      {defs}
       <Renderer
         samples={processed}
         width={width}
         height={height}
-        color={color}
+        color={baseFill.fill}
         barWidth={barWidth}
         gap={gap}
         rounded={rounded}
@@ -132,7 +153,7 @@ export const Waveform = ({
         strokeWidth={strokeWidth}
         fillOpacity={fillOpacity}
         activeIndex={interactive ? activeIndex : null}
-        activeColor={activeColor}
+        activeColor={interactive ? activeFill.fill : undefined}
         activeScale={activeScale}
         activePushRange={activePushRange}
         activeTransitionMs={activeTransitionMs}

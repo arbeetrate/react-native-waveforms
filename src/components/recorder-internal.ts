@@ -62,6 +62,9 @@ export type AnimatedRecorderProps = {
   barWidth: number;
   gap: number;
   color: string;
+  /** Optional per-bar color overrides (length must equal `capacity`).
+   * Used by gradient support: `color` becomes the fallback. */
+  colors?: readonly string[];
   baseline: BarsBaseline;
   rounded: boolean | number | undefined;
   duration: number;
@@ -70,6 +73,8 @@ export type AnimatedRecorderProps = {
   prefill: boolean;
   fadeIn: number;
   fadeOut: number;
+  growIn: number;
+  growOut: number;
   enableScroll: boolean;
   smoothScroll: boolean;
   initialSamples?: readonly number[];

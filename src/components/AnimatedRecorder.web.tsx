@@ -46,6 +46,7 @@ export const AnimatedRecorder = memo(
         barWidth,
         gap,
         color,
+        colors,
         baseline,
         rounded,
         duration,
@@ -53,6 +54,8 @@ export const AnimatedRecorder = memo(
         prefill,
         fadeIn,
         fadeOut,
+        growIn,
+        growOut,
         enableScroll,
         smoothScroll,
         initialSamples,
@@ -61,6 +64,29 @@ export const AnimatedRecorder = memo(
     ) => {
       const stride = barWidth + gap;
       const radius = resolveRadius(rounded, barWidth);
+      const growInPx = growIn > 0 ? growIn * stride : 0;
+      const growOutPx = growOut > 0 ? growOut * stride : 0;
+      // Per-slot height envelope. Slots are fixed in container coords, so
+      // the envelope is computed once per index. During scroll animations
+      // the wrapper translates, so the envelope appears anchored to slots
+      // (not to bar data) - same model as fade's CSS mask.
+      const growEnvAt = useCallback(
+        (i: number): number => {
+          if (growInPx <= 0 && growOutPx <= 0) return 1;
+          const center = i * stride + barWidth / 2;
+          let env = 1;
+          if (growInPx > 0) {
+            const m = (width - center) / growInPx;
+            env *= m < 0 ? 0 : m > 1 ? 1 : m;
+          }
+          if (growOutPx > 0) {
+            const m = center / growOutPx;
+            env *= m < 0 ? 0 : m > 1 ? 1 : m;
+          }
+          return env;
+        },
+        [growInPx, growOutPx, stride, barWidth, width]
+      );
 
       // Targets buffer mutated in place - same model as native impl.
       const targetsRef = useRef<number[]>([]);
@@ -82,6 +108,18 @@ export const AnimatedRecorder = memo(
 
       const pendingRef = useRef<number[]>([]);
       const rafRef = useRef<number | null>(null);
+      // While the wrapper translateX animation is running, this rAF keeps
+      // grow-zone bar heights aligned with the live viewport position
+      // (matches the native worklet model). Without it the per-slot env
+      // would step discretely on each push and look janky.
+      const growRafRef = useRef<number | null>(null);
+
+      const stopGrowRaf = useCallback(() => {
+        if (growRafRef.current !== null) {
+          cancelAnimationFrame(growRafRef.current);
+          growRafRef.current = null;
+        }
+      }, []);
 
       const flush = useCallback(() => {
         rafRef.current = null;
@@ -113,7 +151,7 @@ export const AnimatedRecorder = memo(
           if (!el) continue;
           const a = targets[i] ?? 0;
           const ampClamped = a < 0 ? 0 : a > 1 ? 1 : a;
-          const h = ampClamped * height;
+          const h = ampClamped * growEnvAt(i) * height;
           const top = baseline === 'bottom' ? height - h : (height - h) / 2;
           el.style.height = `${h}px`;
           el.style.top = `${top}px`;
@@ -141,6 +179,51 @@ export const AnimatedRecorder = memo(
             );
           }
         }
+
+        // Track translateX during scroll animations so grow-zone bars
+        // smoothly interpolate their height envelope (instead of jumping
+        // per-slot per push). Only spins up when scroll is active AND a
+        // grow envelope is configured; otherwise per-slot heights set
+        // above are correct.
+        const trackGrow =
+          enableScroll && smoothScroll && (growInPx > 0 || growOutPx > 0);
+        if (trackGrow && growRafRef.current === null) {
+          const tick = () => {
+            const w = wrapperRef.current;
+            if (!w || w.getAnimations().length === 0) {
+              growRafRef.current = null;
+              return;
+            }
+            const tx = getCurrentTranslateX(w);
+            const targetsNow = targetsRef.current;
+            const barsNow = barRefs.current;
+            const total = barsNow.length;
+            for (let i = 0; i < total; i++) {
+              const inGrowZone = i < growOut || i >= total - growIn;
+              if (!inGrowZone) continue;
+              const el = barsNow[i];
+              if (!el) continue;
+              const center = i * stride + barWidth / 2 + tx;
+              let env = 1;
+              if (growInPx > 0) {
+                const m = (width - center) / growInPx;
+                env *= m < 0 ? 0 : m > 1 ? 1 : m;
+              }
+              if (growOutPx > 0) {
+                const m = center / growOutPx;
+                env *= m < 0 ? 0 : m > 1 ? 1 : m;
+              }
+              const a = targetsNow[i] ?? 0;
+              const ampClamped = a < 0 ? 0 : a > 1 ? 1 : a;
+              const h = ampClamped * env * height;
+              const top = baseline === 'bottom' ? height - h : (height - h) / 2;
+              el.style.height = `${h}px`;
+              el.style.top = `${top}px`;
+            }
+            growRafRef.current = requestAnimationFrame(tick);
+          };
+          growRafRef.current = requestAnimationFrame(tick);
+        }
       }, [
         capacity,
         duration,
@@ -149,6 +232,13 @@ export const AnimatedRecorder = memo(
         stride,
         height,
         baseline,
+        growEnvAt,
+        growIn,
+        growOut,
+        growInPx,
+        growOutPx,
+        barWidth,
+        width,
       ]);
 
       const push = useCallback<RecorderWaveformHandle['push']>(
@@ -178,6 +268,7 @@ export const AnimatedRecorder = memo(
           cancelAnimationFrame(rafRef.current);
           rafRef.current = null;
         }
+        stopGrowRaf();
         cancelAllAnimations(wrapperRef.current);
         const bars = barRefs.current;
         const baseTop =
@@ -189,15 +280,16 @@ export const AnimatedRecorder = memo(
           el.style.height = '0px';
           el.style.top = baseTop;
         }
-      }, [baseline, height]);
+      }, [baseline, height, stopGrowRaf]);
 
       useImperativeHandle(ref, () => ({ push, reset }), [push, reset]);
 
       useEffect(
         () => () => {
           if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+          stopGrowRaf();
         },
-        []
+        [stopGrowRaf]
       );
 
       // Apply initial bar heights synchronously after mount/capacity change
@@ -210,12 +302,12 @@ export const AnimatedRecorder = memo(
           if (!el) continue;
           const a = targets[i] ?? 0;
           const ampClamped = a < 0 ? 0 : a > 1 ? 1 : a;
-          const h = ampClamped * height;
+          const h = ampClamped * growEnvAt(i) * height;
           const top = baseline === 'bottom' ? height - h : (height - h) / 2;
           el.style.height = `${h}px`;
           el.style.top = `${top}px`;
         }
-      }, [capacity, height, baseline]);
+      }, [capacity, height, baseline, growEnvAt]);
 
       // Set CSS transition once per (mode, duration) change. Morph mode
       // wants smooth height/top transitions; scroll mode wants instant
@@ -270,7 +362,7 @@ export const AnimatedRecorder = memo(
                   position: 'absolute',
                   left: i * stride,
                   width: barWidth,
-                  backgroundColor: color,
+                  backgroundColor: colors?.[i] ?? color,
                   borderRadius: radius,
                 }}
               />

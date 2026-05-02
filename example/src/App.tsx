@@ -1,5 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import {
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import {
   PlayerWaveform,
   RecorderWaveform,
@@ -59,11 +66,14 @@ const useSharedFakeMeter = (
 export default function App() {
   const { iteration, durationMs } = useLoopingPlayback(4000);
   const recorderRef = useRef<RecorderWaveformHandle>(null);
+  const gradientRecorderRef = useRef<RecorderWaveformHandle>(null);
   const morphRecorderRef = useRef<RecorderWaveformHandle>(null);
   const leftRecorderRef = useRef<RecorderWaveformHandle>(null);
   const noPrefillRecorderRef = useRef<RecorderWaveformHandle>(null);
   const fadeScrollRef = useRef<RecorderWaveformHandle>(null);
-  const fadeMorphRef = useRef<RecorderWaveformHandle>(null);
+  const growScrollRef = useRef<RecorderWaveformHandle>(null);
+  const growMorphRef = useRef<RecorderWaveformHandle>(null);
+  const fadeGrowComboRef = useRef<RecorderWaveformHandle>(null);
   const micRecorderRef = useRef<RecorderWaveformHandle>(null);
   const [isMicActive, setIsMicActive] = useState(false);
   const micStatus = useMicMeter(micRecorderRef, isMicActive);
@@ -77,11 +87,14 @@ export default function App() {
   const meterRefs = useMemo(
     () => [
       recorderRef,
+      gradientRecorderRef,
       morphRecorderRef,
       leftRecorderRef,
       noPrefillRecorderRef,
       fadeScrollRef,
-      fadeMorphRef,
+      growScrollRef,
+      growMorphRef,
+      fadeGrowComboRef,
     ],
     []
   );
@@ -130,6 +143,35 @@ export default function App() {
         />
       </Demo>
 
+      <Demo label="bars · linear gradient (left → right)">
+        <Waveform
+          samples={sampleAmplitudes}
+          width={WIDTH}
+          height={HEIGHT}
+          color={{ type: 'linear', from: '#3b82f6', to: '#a855f7' }}
+          gap={2}
+          rounded
+        />
+      </Demo>
+
+      <Demo label="bars · multi-stop gradient (rainbow)">
+        <Waveform
+          samples={sampleAmplitudes}
+          width={WIDTH}
+          height={HEIGHT}
+          color={{
+            type: 'linear',
+            stops: [
+              { offset: 0, color: '#ef4444' },
+              { offset: 0.5, color: '#eab308' },
+              { offset: 1, color: '#22c55e' },
+            ],
+          }}
+          gap={2}
+          rounded
+        />
+      </Demo>
+
       <Demo label="line">
         <Waveform
           samples={sampleAmplitudes}
@@ -149,6 +191,22 @@ export default function App() {
           renderer="area"
           color="#7c3aed"
           fillOpacity={0.85}
+        />
+      </Demo>
+
+      <Demo label="area · vertical gradient (top → bottom)">
+        <Waveform
+          samples={sampleAmplitudes}
+          width={WIDTH}
+          height={HEIGHT}
+          renderer="area"
+          color={{
+            type: 'linear',
+            direction: 'vertical',
+            from: '#0ea5e9',
+            to: '#1e3a8a',
+          }}
+          fillOpacity={0.95}
         />
       </Demo>
 
@@ -196,12 +254,46 @@ export default function App() {
         />
       </Demo>
 
+      <Demo label="player · bars with gradient progress">
+        <PlayerWaveform
+          key={`bars-grad-${iteration}`}
+          samples={sampleAmplitudes}
+          width={WIDTH}
+          height={HEIGHT}
+          color="#e2e8f0"
+          progressColor={{
+            type: 'linear',
+            from: '#22c55e',
+            to: '#0ea5e9',
+          }}
+          gap={2}
+          rounded
+          isPlaying
+          positionMs={0}
+          durationMs={durationMs}
+        />
+      </Demo>
+
       <Demo label="recorder · live samples (scroll)">
         <RecorderWaveform
           ref={recorderRef}
           width={WIDTH}
           height={HEIGHT}
           color="#dc2626"
+          baseline="bottom"
+          transitionDuration={200}
+          barWidth={3}
+          gap={2}
+          rounded
+        />
+      </Demo>
+
+      <Demo label="recorder · linear gradient (per-bar)">
+        <RecorderWaveform
+          ref={gradientRecorderRef}
+          width={WIDTH}
+          height={HEIGHT}
+          color={{ type: 'linear', from: '#22d3ee', to: '#a855f7' }}
           baseline="bottom"
           transitionDuration={200}
           barWidth={3}
@@ -255,12 +347,47 @@ export default function App() {
         />
       </Demo>
 
-      <Demo label="recorder · scroll, fadeIn=4 fadeOut=4">
+      {Platform.OS !== 'web' && (
+        <Demo label="recorder · scroll, growIn=4 growOut=4 (height envelope)">
+          <RecorderWaveform
+            ref={growScrollRef}
+            width={WIDTH}
+            height={HEIGHT}
+            color="#ea580c"
+            baseline="bottom"
+            growIn={4}
+            growOut={4}
+            transitionDuration={200}
+            barWidth={3}
+            gap={2}
+            rounded
+          />
+        </Demo>
+      )}
+
+      <Demo label="recorder · morph, growIn=3 growOut=3 (height envelope)">
+        <RecorderWaveform
+          ref={growMorphRef}
+          width={WIDTH}
+          height={HEIGHT}
+          color="#db2777"
+          baseline="bottom"
+          transition="morph"
+          growIn={3}
+          growOut={3}
+          transitionDuration={300}
+          barWidth={3}
+          gap={2}
+          rounded
+        />
+      </Demo>
+
+      <Demo label="recorder · scroll, fadeIn=4 fadeOut=4 (alpha fade)">
         <RecorderWaveform
           ref={fadeScrollRef}
           width={WIDTH}
           height={HEIGHT}
-          color="#ea580c"
+          color="#0f766e"
           baseline="bottom"
           fadeIn={4}
           fadeOut={4}
@@ -271,22 +398,25 @@ export default function App() {
         />
       </Demo>
 
-      <Demo label="recorder · morph, fadeIn=3 fadeOut=3">
-        <RecorderWaveform
-          ref={fadeMorphRef}
-          width={WIDTH}
-          height={HEIGHT}
-          color="#db2777"
-          baseline="bottom"
-          transition="morph"
-          fadeIn={4}
-          fadeOut={4}
-          transitionDuration={300}
-          barWidth={3}
-          gap={2}
-          rounded
-        />
-      </Demo>
+      {Platform.OS !== 'web' && (
+        <Demo label="recorder · scroll, fade + grow combined">
+          <RecorderWaveform
+            ref={fadeGrowComboRef}
+            width={WIDTH}
+            height={HEIGHT}
+            color="#7c3aed"
+            baseline="bottom"
+            fadeIn={3}
+            fadeOut={3}
+            growIn={3}
+            growOut={3}
+            transitionDuration={200}
+            barWidth={3}
+            gap={2}
+            rounded
+          />
+        </Demo>
+      )}
 
       <Demo label="recorder · live microphone (web)">
         <RecorderWaveform

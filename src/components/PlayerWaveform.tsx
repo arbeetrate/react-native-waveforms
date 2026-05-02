@@ -10,6 +10,7 @@ import Svg, { ClipPath, Defs, G, Rect } from 'react-native-svg';
 import type { PlayerWaveformProps, RendererProps } from '../types';
 import { useProcessedSamples } from '../hooks/useProcessedSamples';
 import { builtInRenderers } from '../renderers';
+import { resolveFill } from '../utils/resolveFill';
 
 const DEFAULT_COLOR = '#d1d5db';
 const DEFAULT_PROGRESS_COLOR = '#2563eb';
@@ -113,11 +114,21 @@ export const PlayerWaveform = ({
   const Renderer =
     typeof renderer === 'function' ? renderer : builtInRenderers[renderer];
 
+  const idBase = useId().replace(/:/g, '');
+  const baseFill = useMemo(
+    () => resolveFill(color, `pw-${idBase}-c`),
+    [color, idBase]
+  );
+  const progressFill = useMemo(
+    () => resolveFill(progressColor, `pw-${idBase}-p`),
+    [progressColor, idBase]
+  );
+
   const rendererProps: RendererProps = {
     samples: processed,
     width,
     height,
-    color,
+    color: baseFill.fill,
     barWidth,
     gap,
     rounded,
@@ -126,12 +137,13 @@ export const PlayerWaveform = ({
     fillOpacity,
   };
 
-  const clipId = `pw-clip-${useId()}`;
+  const clipId = `pw-clip-${idBase}`;
 
   return (
     <Svg width={width} height={height}>
-      <Renderer {...rendererProps} />
       <Defs>
+        {baseFill.def}
+        {progressFill.def}
         <ClipPath id={clipId}>
           <AnimatedRect
             x={0}
@@ -141,8 +153,9 @@ export const PlayerWaveform = ({
           />
         </ClipPath>
       </Defs>
+      <Renderer {...rendererProps} />
       <G clipPath={`url(#${clipId})`}>
-        <Renderer {...rendererProps} color={progressColor} />
+        <Renderer {...rendererProps} color={progressFill.fill} />
       </G>
     </Svg>
   );

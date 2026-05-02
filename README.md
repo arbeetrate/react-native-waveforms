@@ -1,6 +1,6 @@
 # react-native-waveforms
 
-> **Status:** `0.1.0-rc.1` - first public release candidate. The API is feature-complete for static, player and recorder modes; expect minor prop renames before `0.1.0`.
+> **Status:** `0.1.0` - first public release. Future fixes ship as `0.1.x` patches.
 
 Cross-platform audio waveform visualizer for **React Native**, **Expo** and **Web**. Static, live recording and live playback modes - rendered with [`react-native-svg`](https://github.com/software-mansion/react-native-svg) and animated on the UI thread with [`react-native-reanimated`](https://github.com/software-mansion/react-native-reanimated).
 
@@ -13,6 +13,8 @@ The package is **rendering-only** - you bring the audio data (an amplitude array
 - UI-thread animations via Reanimated worklets; no per-frame React renders for playback or recording.
 - Hover (web) / tap & drag (native) interaction with a customisable active bar and `onActiveSampleChange` callback.
 - Recorder modes: `scroll` (bars slide horizontally) and `morph` (bars stay in place, heights animate).
+- Recorder edge effects: `fadeIn` / `fadeOut` (alpha fade) and `growIn` / `growOut` (height envelope).
+- Linear gradient fills via the `WaveformColor` API on `<Waveform>`, `<PlayerWaveform>` and `<RecorderWaveform>`.
 - Web support via `react-native-web` / Expo Web - same API, native DOM events.
 
 ## Platforms
@@ -72,6 +74,38 @@ Switch renderer:
 ```tsx
 <Waveform samples={amplitudes} width={320} height={80} renderer="line" strokeWidth={1.5} />
 <Waveform samples={amplitudes} width={320} height={80} renderer="area" fillOpacity={0.85} />
+```
+
+Gradient fills - any `color`-style prop (`color`, `progressColor`, `activeColor`)
+accepts a `WaveformColor` union: a CSS string **or** a `LinearGradientSpec`.
+`<Waveform>` and `<PlayerWaveform>` render gradients via SVG `<LinearGradient>`;
+`<RecorderWaveform>` samples the gradient once per bar slot along the x-axis
+(see [API › `WaveformColor`](#waveformcolor) and [Known issues](#known-issues)).
+
+```tsx
+// Two-stop shorthand (left → right by default)
+<Waveform
+  samples={amplitudes}
+  width={320}
+  height={80}
+  color={{ type: 'linear', from: '#3b82f6', to: '#a855f7' }}
+/>
+
+// Multi-stop, vertical
+<Waveform
+  samples={amplitudes}
+  width={320}
+  height={80}
+  renderer="area"
+  color={{
+    type: 'linear',
+    direction: 'vertical',
+    stops: [
+      { offset: 0, color: '#0ea5e9' },
+      { offset: 1, color: '#1e3a8a' },
+    ],
+  }}
+/>
 ```
 
 Hover / tap interaction (turns on once `activeColor` is set):
@@ -153,7 +187,7 @@ ref.current?.reset(); // clear buffer
 | `samples`              | `readonly number[]`                     | required  | Amplitudes; default range `[0, 1]`.                                    |
 | `width`                | `number`                                | required  | SVG width.                                                             |
 | `height`               | `number`                                | required  | SVG height.                                                            |
-| `color`                | `string`                                | `'#000'`  | Fill / stroke colour.                                                  |
+| `color`                | `WaveformColor`                         | `'#000'`  | CSS colour string or [`LinearGradientSpec`](#waveformcolor).           |
 | `renderer`             | `'bars' \| 'line' \| 'area' \| fn`      | `'bars'`  | Custom: `(props: RendererProps) => ReactNode`.                         |
 | `inputRange`           | `[number, number]`                      | `[0, 1]`  | Re-maps `samples` into `[0, 1]`.                                       |
 | `barWidth`             | `number`                                | auto      | Bars only.                                                             |
@@ -162,7 +196,7 @@ ref.current?.reset(); // clear buffer
 | `baseline`             | `'center' \| 'bottom'`                  | `'center'`| Bars only.                                                             |
 | `strokeWidth`          | `number`                                | `1`       | Line / area.                                                           |
 | `fillOpacity`          | `number`                                | `1`       | Area only.                                                             |
-| `activeColor`          | `string`                                | -         | Enables hover / tap highlight.                                         |
+| `activeColor`          | `WaveformColor`                         | -         | Enables hover / tap highlight; gradients accepted.                     |
 | `activeScale`          | `number`                                | `1`       | Bars only - width multiplier for the active bar.                       |
 | `activePushRange`      | `number`                                | auto      | Bars only - neighbours pushed away from the active bar (linear decay). |
 | `activeTransitionMs`   | `number`                                | `150`     | Web only - CSS transition duration; native snaps.                      |
@@ -174,7 +208,7 @@ Inherits all `<Waveform>` props, plus:
 
 | Prop                | Type      | Default   | Notes                                                              |
 | ------------------- | --------- | --------- | ------------------------------------------------------------------ |
-| `progressColor`     | `string`  | `#2563eb` | Colour for the played portion.                                     |
+| `progressColor`     | `WaveformColor` | `#2563eb` | Played-portion colour; gradients accepted.                   |
 | `progress`          | `number`  | -         | `0`–`1`. Takes precedence over `positionMs` / `durationMs`.        |
 | `positionMs`        | `number`  | -         | Current playback position in ms.                                   |
 | `durationMs`        | `number`  | -         | Total duration in ms.                                              |
@@ -194,8 +228,10 @@ Inherits `<Waveform>` props **except** `samples` (you push imperatively), plus:
 | `prefill`             | `boolean`                               | `true`      | Pre-fill buffer with zeros so animation starts on first push.                 |
 | `transitionDuration`  | `number`                                | `200`       | Per-sample animation duration in ms.                                          |
 | `transitionEasing`    | `EasingFunction \| EasingFactory`       | `linear`    | From `react-native-reanimated`.                                               |
-| `fadeIn`              | `number`                                | `0`         | Bars at the entry edge that fade in (try `2`–`5`).                            |
-| `fadeOut`             | `number`                                | `0`         | Bars at the exit edge that fade out.                                          |
+| `fadeIn`              | `number`                                | `0`         | Bars at the entry edge that fade in (alpha 0→1). Pure opacity. Try `2`–`5`.   |
+| `fadeOut`             | `number`                                | `0`         | Bars at the exit edge that fade out (alpha 1→0). Pure opacity.                |
+| `growIn`              | `number`                                | `0`         | Bars at the entry edge that grow in height from 0 → full as they shift in.    |
+| `growOut`             | `number`                                | `0`         | Bars at the exit edge that shrink in height from full → 0.                    |
 | `smoothScroll`        | `boolean`                               | `true`      | `scroll` mode only.                                                           |
 | `scrollDuration`      | `number`                                | -           | **Deprecated** - use `transitionDuration`.                                    |
 
@@ -208,6 +244,33 @@ type RecorderWaveformHandle = {
 };
 ```
 
+### `WaveformColor`
+
+```ts
+type GradientStop = { offset: number; color: string; opacity?: number };
+
+type LinearGradientSpec = {
+  type: 'linear';
+  /** `'horizontal'` (default) = left → right; `'vertical'` = top → bottom. */
+  direction?: 'horizontal' | 'vertical';
+  /** Two-stop shorthand. Ignored when `stops` is provided. */
+  from?: string;
+  to?: string;
+  /** Explicit stops; takes precedence over `from` / `to`. */
+  stops?: readonly GradientStop[];
+};
+
+type WaveformColor = string | LinearGradientSpec;
+```
+
+`<Waveform>` and `<PlayerWaveform>` paint gradients via SVG `<LinearGradient>`,
+so any direction and any number of stops is honoured. `<RecorderWaveform>`
+uses `View.backgroundColor` per bar - it samples the gradient once per slot
+along the **x-axis** and treats `vertical` as horizontal sampling. Recorder
+gradients work best with hex (`#rgb`, `#rrggbb`, `#rrggbbaa`) or `rgb(...)` /
+`rgba(...)` colour strings; named CSS colours fall back to the nearest stop
+without interpolation.
+
 ### Custom renderers
 
 Any function matching `(props: RendererProps) => ReactNode` can be passed as `renderer`. The built-in `BarsRenderer`, `LineRenderer` and `AreaRenderer` are also exported if you want to compose them.
@@ -219,6 +282,17 @@ const MyRenderer: WaveformRenderer = (props) => (
   <BarsRenderer {...props} barWidth={4} rounded />
 );
 ```
+
+## Known issues
+
+- **Web - `<RecorderWaveform>` `growIn` / `growOut` + `transition="scroll"`.**
+  On web the height envelope is computed per slot and re-interpolated via a
+  `requestAnimationFrame` loop while the wrapper translates. Some browsers
+  still show subtle stepping in the entry / exit zones during fast pushes.
+  Until this is smoother, the example app gates the scroll + grow demos to
+  native only. Workarounds: use `transition="morph"` (smooth on web), use
+  `fadeIn` / `fadeOut` instead (CSS mask on web - always smooth), or stick
+  to scroll-only / morph-only without grow on web.
 
 ## Pairing with an audio engine
 

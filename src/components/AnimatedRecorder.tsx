@@ -35,6 +35,7 @@ export const AnimatedRecorder = forwardRef<
       barWidth,
       gap,
       color,
+      colors,
       baseline,
       rounded,
       duration,
@@ -43,6 +44,8 @@ export const AnimatedRecorder = forwardRef<
       prefill,
       fadeIn,
       fadeOut,
+      growIn,
+      growOut,
       enableScroll,
       smoothScroll,
       initialSamples,
@@ -87,6 +90,8 @@ export const AnimatedRecorder = forwardRef<
 
     const fadeInPx = fadeIn > 0 ? fadeIn * stride : 0;
     const fadeOutPx = fadeOut > 0 ? fadeOut * stride : 0;
+    const growInPx = growIn > 0 ? growIn * stride : 0;
+    const growOutPx = growOut > 0 ? growOut * stride : 0;
 
     const flush = useCallback(() => {
       rafRef.current = null;
@@ -211,12 +216,14 @@ export const AnimatedRecorder = forwardRef<
             x={i * stride}
             barWidth={barWidth}
             height={height}
-            color={color}
+            color={colors?.[i] ?? color}
             baseline={baseline}
             radius={radius}
             clipWidth={width}
             fadeInPx={fadeInPx}
             fadeOutPx={fadeOutPx}
+            growInPx={growInPx}
+            growOutPx={growOutPx}
             translateX={translateX}
           />
         ))}
@@ -248,6 +255,8 @@ type AnimatedBarProps = {
   clipWidth: number;
   fadeInPx: number;
   fadeOutPx: number;
+  growInPx: number;
+  growOutPx: number;
   translateX: SharedValue<number>;
 };
 
@@ -262,30 +271,43 @@ const AnimatedBar = memo(function AnimatedBar({
   clipWidth,
   fadeInPx,
   fadeOutPx,
+  growInPx,
+  growOutPx,
   translateX,
 }: AnimatedBarProps) {
   const animatedStyle = useAnimatedStyle(() => {
     'worklet';
     const a = sv.value;
     const ampClamped = a < 0 ? 0 : a > 1 ? 1 : a;
-    // Touch translateX ONLY when fade is enabled - Reanimated tracks reads
-    // at runtime, so without fade this worklet does not depend on translateX
-    // and stays idle during scroll animation.
-    let env = 1;
-    if (fadeInPx > 0 || fadeOutPx > 0) {
+    // Touch translateX ONLY when an edge envelope is enabled - Reanimated
+    // tracks reads at runtime, so without fade/grow this worklet does not
+    // depend on translateX and stays idle during scroll animation.
+    const useEnvelope =
+      fadeInPx > 0 || fadeOutPx > 0 || growInPx > 0 || growOutPx > 0;
+    let opacity = 1;
+    let heightEnv = 1;
+    if (useEnvelope) {
       const center = x + barWidth / 2 + translateX.value;
       if (fadeInPx > 0) {
         const m = (clipWidth - center) / fadeInPx;
-        env *= m < 0 ? 0 : m > 1 ? 1 : m;
+        opacity *= m < 0 ? 0 : m > 1 ? 1 : m;
       }
       if (fadeOutPx > 0) {
         const m = center / fadeOutPx;
-        env *= m < 0 ? 0 : m > 1 ? 1 : m;
+        opacity *= m < 0 ? 0 : m > 1 ? 1 : m;
+      }
+      if (growInPx > 0) {
+        const m = (clipWidth - center) / growInPx;
+        heightEnv *= m < 0 ? 0 : m > 1 ? 1 : m;
+      }
+      if (growOutPx > 0) {
+        const m = center / growOutPx;
+        heightEnv *= m < 0 ? 0 : m > 1 ? 1 : m;
       }
     }
-    const h = ampClamped * env * height;
+    const h = ampClamped * heightEnv * height;
     const top = baseline === 'bottom' ? height - h : (height - h) / 2;
-    return { height: h, top };
+    return { height: h, top, opacity };
   });
   return (
     <Animated.View
