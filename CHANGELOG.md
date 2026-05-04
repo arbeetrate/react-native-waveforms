@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.1] - 2026-05-04
+
+### Fixed
+
+- Pass explicit dependency arrays to `useAnimatedStyle` /
+  `useAnimatedProps` calls in `<PlayerWaveform>` and the native
+  `<RecorderWaveform>`. Without them, web bundlers that don't run the
+  `react-native-reanimated` Babel plugin (Next.js, Vite, plain webpack)
+  emitted a runtime warning and could mis-track state on
+  re-renders. Native (Metro / Expo) is unaffected — the plugin already
+  injects equivalent deps.
+
 ## [0.1.0] - 2026-05-03
 
 First public release.
@@ -69,6 +81,7 @@ First public release candidate. Public API may still shift before `0.1.0`.
   `react-native-reanimated >=4.0.0`, `react-native-svg >=15`,
   `react-native-worklets >=0.3.0`.
 
+[0.1.1]: https://github.com/arbeetrate/react-native-waveforms/releases/tag/v0.1.1
 [0.1.0]: https://github.com/arbeetrate/react-native-waveforms/releases/tag/v0.1.0
 [0.1.0-rc.2]: https://github.com/arbeetrate/react-native-waveforms/releases/tag/v0.1.0-rc.2
 [0.1.0-rc.1]: https://github.com/arbeetrate/react-native-waveforms/releases/tag/v0.1.0-rc.1

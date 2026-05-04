@@ -135,11 +135,11 @@ export type RecorderWaveformProps = Omit<
    * translation. Default `Easing.linear`. */
   transitionEasing?: RecorderEasing;
   /** Number of bars at the entry edge that fade in (opacity 0 → 1) as they
-   * shift inward. Pure alpha fade — bar height is unaffected. `0` (default)
+   * shift inward. Pure alpha fade - bar height is unaffected. `0` (default)
    * disables. Try `2`–`5`. */
   fadeIn?: number;
   /** Number of bars at the exit edge that fade out (opacity 1 → 0) as they
-   * approach the edge. Pure alpha fade — bar height is unaffected. `0`
+   * approach the edge. Pure alpha fade - bar height is unaffected. `0`
    * (default) disables. */
   fadeOut?: number;
   /** Number of bars at the entry edge that grow in height from 0 → full as

@@ -199,9 +199,12 @@ export const AnimatedRecorder = forwardRef<
       []
     );
 
-    const animatedStyle = useAnimatedStyle(() => ({
-      transform: [{ translateX: translateX.value }],
-    }));
+    const animatedStyle = useAnimatedStyle(
+      () => ({
+        transform: [{ translateX: translateX.value }],
+      }),
+      [translateX]
+    );
 
     const radius = resolveRadius(rounded, barWidth);
     const flipStyle = direction === 'left' ? styles.flipHorizontal : undefined;
@@ -308,7 +311,19 @@ const AnimatedBar = memo(function AnimatedBar({
     const h = ampClamped * heightEnv * height;
     const top = baseline === 'bottom' ? height - h : (height - h) / 2;
     return { height: h, top, opacity };
-  });
+  }, [
+    sv,
+    x,
+    barWidth,
+    height,
+    baseline,
+    clipWidth,
+    fadeInPx,
+    fadeOutPx,
+    growInPx,
+    growOutPx,
+    translateX,
+  ]);
   return (
     <Animated.View
       style={[

@@ -109,7 +109,7 @@ export const PlayerWaveform = ({
     // a parent remount), and a negative <rect> width crashes the SVG layer.
     const raw = progressValue.value * width;
     return { width: raw < 0 ? 0 : raw > width ? width : raw };
-  });
+  }, [progressValue, width]);
 
   const Renderer =
     typeof renderer === 'function' ? renderer : builtInRenderers[renderer];
