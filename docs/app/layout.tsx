@@ -5,6 +5,8 @@ import {
   MantineProvider,
   mantineHtmlProps,
 } from '@mantine/core';
+import { Analytics } from '@vercel/analytics/next';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Footer, Layout, Navbar } from 'nextra-theme-docs';
 import { Head } from 'nextra/components';
 import { getPageMap } from 'nextra/page-map';
@@ -52,6 +54,8 @@ export default async function RootLayout({
             {children}
           </Layout>
         </MantineProvider>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
