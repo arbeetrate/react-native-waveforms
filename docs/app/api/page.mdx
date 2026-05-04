@@ -1,0 +1,109 @@
+---
+title: API reference
+---
+
+# API reference
+
+## `<Waveform>`
+
+| Prop                   | Type                                    | Default   | Notes                                                                  |
+| ---------------------- | --------------------------------------- | --------- | ---------------------------------------------------------------------- |
+| `samples`              | `readonly number[]`                     | required  | Amplitudes; default range `[0, 1]`.                                    |
+| `width`                | `number`                                | required  | SVG width.                                                             |
+| `height`               | `number`                                | required  | SVG height.                                                            |
+| `color`                | `WaveformColor`                         | `'#000'`  | CSS string or [`LinearGradientSpec`](#waveformcolor).                  |
+| `renderer`             | `'bars' \| 'line' \| 'area' \| fn`      | `'bars'`  | Custom: `(props: RendererProps) => ReactNode`.                         |
+| `inputRange`           | `[number, number]`                      | `[0, 1]`  | Re-maps `samples` into `[0, 1]`.                                       |
+| `barWidth`             | `number`                                | auto      | Bars only.                                                             |
+| `gap`                  | `number`                                | `1`       | Bars only.                                                             |
+| `rounded`              | `boolean \| number`                     | `false`   | Bars only - `true` = pill, number = explicit radius.                   |
+| `baseline`             | `'center' \| 'bottom'`                  | `'center'`| Bars only.                                                             |
+| `strokeWidth`          | `number`                                | `1`       | Line / area.                                                           |
+| `fillOpacity`          | `number`                                | `1`       | Area only.                                                             |
+| `activeColor`          | `WaveformColor`                         | -         | Enables hover / tap highlight; gradients accepted.                     |
+| `activeScale`          | `number`                                | `1`       | Bars only - width multiplier for the active bar.                       |
+| `activePushRange`      | `number`                                | auto      | Bars only - neighbours pushed away (linear decay).                     |
+| `activeTransitionMs`   | `number`                                | `150`     | Web only - CSS transition duration; native snaps.                      |
+| `onActiveSampleChange` | `(index, sample) => void`               | -         | `index === null` on leave / release.                                   |
+
+## `<PlayerWaveform>`
+
+Inherits all `<Waveform>` props, plus:
+
+| Prop                | Type            | Default   | Notes                                                          |
+| ------------------- | --------------- | --------- | -------------------------------------------------------------- |
+| `progressColor`     | `WaveformColor` | `#2563eb` | Played-portion colour; gradients accepted.                     |
+| `progress`          | `number`        | -         | `0`–`1`. Takes precedence over `positionMs` / `durationMs`.    |
+| `positionMs`        | `number`        | -         | Current playback position in ms.                               |
+| `durationMs`        | `number`        | -         | Total duration in ms.                                          |
+| `isPlaying`         | `boolean`       | `false`   | When `true`, progress animates on the UI thread to next frame. |
+| `animationDuration` | `number`        | `200`     | Transition duration between progress values, in ms.            |
+
+## `<RecorderWaveform>`
+
+Inherits `<Waveform>` props **except** `samples` (you push imperatively),
+plus:
+
+| Prop                  | Type                                    | Default     | Notes                                                                         |
+| --------------------- | --------------------------------------- | ----------- | ----------------------------------------------------------------------------- |
+| `capacity`            | `number`                                | auto        | Bar slots in the buffer; computed from `width`, `barWidth`, `gap` if omitted. |
+| `initialSamples`      | `readonly number[]`                     | -           | Optional warm-start data.                                                     |
+| `transition`          | `'scroll' \| 'morph'`                   | `'scroll'`  | Slide bars vs animate heights in place.                                       |
+| `direction`           | `'right' \| 'left'`                     | `'right'`   | Edge new samples enter from.                                                  |
+| `prefill`             | `boolean`                               | `true`      | Pre-fill buffer with zeros so animation starts on first push.                 |
+| `transitionDuration`  | `number`                                | `200`       | Per-sample animation duration in ms.                                          |
+| `transitionEasing`    | `EasingFunction \| EasingFactory`       | `linear`    | From `react-native-reanimated`.                                               |
+| `fadeIn`              | `number`                                | `0`         | Bars at the entry edge that fade in (alpha 0→1). Pure opacity.                |
+| `fadeOut`             | `number`                                | `0`         | Bars at the exit edge that fade out (alpha 1→0). Pure opacity.                |
+| `growIn`              | `number`                                | `0`         | Bars at the entry edge that grow in height from 0 → full.                     |
+| `growOut`             | `number`                                | `0`         | Bars at the exit edge that shrink in height from full → 0.                    |
+| `smoothScroll`        | `boolean`                               | `true`      | `scroll` mode only.                                                           |
+| `scrollDuration`      | `number`                                | -           | **Deprecated** - use `transitionDuration`.                                    |
+
+```ts
+type RecorderWaveformHandle = {
+  push: (amplitude: number | readonly number[]) => void;
+  reset: () => void;
+};
+```
+
+## `WaveformColor`
+
+```ts
+type GradientStop = { offset: number; color: string; opacity?: number };
+
+type LinearGradientSpec = {
+  type: 'linear';
+  /** 'horizontal' (default) = left → right; 'vertical' = top → bottom. */
+  direction?: 'horizontal' | 'vertical';
+  /** Two-stop shorthand. Ignored when `stops` is provided. */
+  from?: string;
+  to?: string;
+  /** Explicit stops; takes precedence over `from` / `to`. */
+  stops?: readonly GradientStop[];
+};
+
+type WaveformColor = string | LinearGradientSpec;
+```
+
+`<Waveform>` and `<PlayerWaveform>` paint gradients via SVG
+`<LinearGradient>` - any direction and any number of stops is honoured.
+`<RecorderWaveform>` uses `View.backgroundColor` per bar; it samples the
+gradient once per slot along the **x-axis** and treats `vertical` as
+horizontal sampling. Recorder gradients work best with hex (`#rgb`,
+`#rrggbb`, `#rrggbbaa`) or `rgb(...)` / `rgba(...)` strings; named CSS
+colours fall back to the nearest stop without interpolation.
+
+## Custom renderers
+
+Any function matching `(props: RendererProps) => ReactNode` can be passed
+as `renderer`. The built-in `BarsRenderer`, `LineRenderer` and
+`AreaRenderer` are also exported if you want to compose them.
+
+```tsx
+import { BarsRenderer, type WaveformRenderer } from 'react-native-waveforms';
+
+const MyRenderer: WaveformRenderer = (props) => (
+  <BarsRenderer {...props} barWidth={4} rounded />
+);
+```

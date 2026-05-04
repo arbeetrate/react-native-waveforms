@@ -1,0 +1,96 @@
+---
+title: <Waveform>
+---
+
+import { WaveformPlayground } from '../../../components/Playground';
+
+# `<Waveform>`
+
+Static renderer. Pass an array of amplitudes in `[0, 1]` (or any range
+remapped via `inputRange`) and the component draws bars, a line, or an
+area chart.
+
+## Quick example
+
+```tsx
+import { Waveform } from 'react-native-waveforms';
+
+<Waveform
+  samples={amplitudes}
+  width={320}
+  height={80}
+  color="#2563eb"
+  gap={2}
+  rounded
+/>
+```
+
+## Renderers
+
+```tsx
+<Waveform samples={amplitudes} renderer="bars" gap={2} rounded />
+<Waveform samples={amplitudes} renderer="line" strokeWidth={1.5} />
+<Waveform samples={amplitudes} renderer="area" fillOpacity={0.85} />
+```
+
+## Hover / tap interaction
+
+Setting `activeColor` turns on the hit overlay. On web you get hover; on
+native, tap & drag. The active bar can grow (`activeScale`) and push its
+neighbours away (`activePushRange`).
+
+```tsx
+<Waveform
+  samples={amplitudes}
+  width={320}
+  height={80}
+  color="#2563eb"
+  activeColor="#f97316"
+  activeScale={1.8}
+  activeTransitionMs={180}
+  onActiveSampleChange={(index, value) => {
+    // index === null on leave / release
+  }}
+/>
+```
+
+## Gradient fills
+
+`color` and `activeColor` accept a `WaveformColor` (CSS string **or**
+`LinearGradientSpec`). See the [API reference](/api/#waveformcolor) for
+the full type.
+
+```tsx
+<Waveform
+  samples={amplitudes}
+  width={320}
+  height={80}
+  color={{ type: 'linear', from: '#3b82f6', to: '#a855f7' }}
+/>
+```
+
+## Props
+
+| Prop                   | Type                                    | Default    | Description                                                                                  |
+| ---------------------- | --------------------------------------- | ---------- | -------------------------------------------------------------------------------------------- |
+| `samples`              | `readonly number[]`                     | required   | Amplitudes; default range `[0, 1]`.                                                          |
+| `width`                | `number`                                | required   | SVG width in px.                                                                             |
+| `height`               | `number`                                | required   | SVG height in px.                                                                            |
+| `color`                | `WaveformColor`                         | `'#000'`   | CSS string or [`LinearGradientSpec`](/api/#waveformcolor).                                   |
+| `renderer`             | `'bars' \| 'line' \| 'area' \| fn`      | `'bars'`   | Built-in name or a custom `(props: RendererProps) => ReactNode`.                             |
+| `inputRange`           | `[number, number]`                      | `[0, 1]`   | Re-maps `samples` from another range (e.g. dBFS) into `[0, 1]`.                              |
+| `barWidth`             | `number`                                | auto       | Bars only - explicit bar width; auto-fits when omitted.                                      |
+| `gap`                  | `number`                                | `1`        | Bars only - px gap between bars.                                                             |
+| `rounded`              | `boolean \| number`                     | `false`    | Bars only - `true` for pill, number for explicit corner radius.                              |
+| `baseline`             | `'center' \| 'bottom'`                  | `'center'` | Bars only - vertical anchor.                                                                 |
+| `strokeWidth`          | `number`                                | `1`        | Line / area only.                                                                            |
+| `fillOpacity`          | `number`                                | `1`        | Area only.                                                                                   |
+| `activeColor`          | `WaveformColor`                         | -          | Enables hover / tap highlight; gradients accepted.                                           |
+| `activeScale`          | `number`                                | `1`        | Bars only - width multiplier for the active bar.                                             |
+| `activePushRange`      | `number`                                | auto       | Bars only - how many neighbours get pushed aside (linear decay). Auto-`4` when `activeScale > 1`. |
+| `activeTransitionMs`   | `number`                                | `150`      | Web only - CSS transition for active state. Native snaps.                                    |
+| `onActiveSampleChange` | `(index, sample) => void`               | -          | Fires on hover / tap. `index === null` on leave / release.                                   |
+
+## Playground
+
+<WaveformPlayground />

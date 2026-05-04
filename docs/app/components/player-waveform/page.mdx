@@ -1,0 +1,70 @@
+---
+title: <PlayerWaveform>
+---
+
+import { PlayerPlayground } from '../../../components/Playground';
+
+# `<PlayerWaveform>`
+
+Wraps `<Waveform>` with a UI-thread-animated progress fill. Drive it with
+a `progress` value (`0`–`1`) **or** a `positionMs` + `durationMs` pair
+plus `isPlaying`.
+
+## Quick example
+
+```tsx
+import { PlayerWaveform } from 'react-native-waveforms';
+
+<PlayerWaveform
+  samples={amplitudes}
+  width={320}
+  height={80}
+  color="#cbd5e1"
+  progressColor="#2563eb"
+  isPlaying
+  positionMs={currentMs}
+  durationMs={totalMs}
+/>
+```
+
+When `isPlaying` is `true`, the progress animates smoothly toward the
+end on the UI thread, so dropped JS frames don't stutter the bar. While
+paused (or controlling progress directly), pass `progress={0..1}` to
+scrub.
+
+## Gradient progress
+
+`progressColor` accepts a `WaveformColor`, so the played-portion can be
+a gradient.
+
+```tsx
+<PlayerWaveform
+  samples={amplitudes}
+  width={320}
+  height={80}
+  color="#e2e8f0"
+  progressColor={{ type: 'linear', from: '#22c55e', to: '#0ea5e9' }}
+  isPlaying
+  positionMs={0}
+  durationMs={4000}
+/>
+```
+
+## Props
+
+Inherits every [`<Waveform>` prop](/components/waveform/#props) (samples,
+width, height, color, renderer, gap, rounded, baseline, strokeWidth,
+fillOpacity, gradient/active props), plus:
+
+| Prop                | Type            | Default     | Description                                                          |
+| ------------------- | --------------- | ----------- | -------------------------------------------------------------------- |
+| `progressColor`     | `WaveformColor` | `'#2563eb'` | Played-portion colour. Gradients accepted.                           |
+| `progress`          | `number`        | -           | `0`–`1` direct progress. Takes precedence over `positionMs` / `durationMs`. |
+| `positionMs`        | `number`        | -           | Current playback position in ms.                                     |
+| `durationMs`        | `number`        | -           | Total duration in ms.                                                |
+| `isPlaying`         | `boolean`       | `false`     | When `true`, progress animates on the UI thread to the next frame.   |
+| `animationDuration` | `number`        | `200`       | Transition duration between manual progress values, in ms.           |
+
+## Playground
+
+<PlayerPlayground />

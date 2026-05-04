@@ -1,0 +1,106 @@
+---
+title: <RecorderWaveform>
+---
+
+import { Callout } from 'nextra/components';
+import { RecorderPlayground } from '../../../components/Playground';
+
+# `<RecorderWaveform>`
+
+Imperative API for live amplitude streams (mic level, peak meter, …).
+Keep a ref, call `push(amplitude)` on every meter tick.
+
+## Quick example
+
+```tsx
+import { useRef } from 'react';
+import {
+  RecorderWaveform,
+  type RecorderWaveformHandle,
+} from 'react-native-waveforms';
+
+const ref = useRef<RecorderWaveformHandle>(null);
+
+// In your meter callback:
+ref.current?.push(0.42);          // any number in [0, 1]
+ref.current?.push([0.1, 0.2, 0.3]); // batch push also accepted
+ref.current?.reset();             // clear buffer
+
+<RecorderWaveform
+  ref={ref}
+  width={320}
+  height={80}
+  color="#dc2626"
+  baseline="bottom"
+  transition="scroll"  // or "morph"
+  transitionDuration={200}
+  barWidth={3}
+  gap={2}
+  rounded
+/>
+```
+
+## Transitions
+
+- **`scroll`** - bars slide horizontally as new samples arrive.
+- **`morph`** - bars stay in place; their heights animate to the next
+  sample's value.
+
+## Edge effects
+
+Two independent knobs affect the entry / exit edges:
+
+- **`fadeIn` / `fadeOut`** - pure alpha fade (opacity 0↔1) on both
+  platforms. Native: per-bar `opacity`. Web: CSS `mask-image`.
+- **`growIn` / `growOut`** - height envelope (bars grow from 0 → full
+  on entry, shrink to 0 on exit).
+
+<Callout type="warning" emoji="⚠️">
+  **`growIn` / `growOut` are unstable.** The current API and the web
+  scroll-mode behaviour will change in a future release. They're
+  intentionally hidden from the playground below until the API
+  stabilises. See [README › Known issues](https://github.com/arbeetrate/react-native-waveforms#known-issues)
+  for the current limitations.
+</Callout>
+
+## Gradient fills on the recorder
+
+`<RecorderWaveform>` paints bars via `View.backgroundColor`, so a
+gradient is sampled **once per bar slot along the x-axis** (regardless
+of `direction`). Hex / `rgb()` / `rgba()` colours interpolate cleanly;
+named CSS colours fall back to the nearest stop.
+
+## Props
+
+Inherits every [`<Waveform>` prop](/components/waveform/#props) **except
+`samples` and `activeColor`** (you push imperatively via the ref handle),
+plus:
+
+| Prop                  | Type                                    | Default    | Description                                                                         |
+| --------------------- | --------------------------------------- | ---------- | ----------------------------------------------------------------------------------- |
+| `capacity`            | `number`                                | auto       | Bar slots in the buffer; computed from `width` / `barWidth` / `gap` if omitted.     |
+| `initialSamples`      | `readonly number[]`                     | -          | Optional warm-start data.                                                           |
+| `transition`          | `'scroll' \| 'morph'`                   | `'scroll'` | `scroll` slides bars; `morph` keeps them in place and animates heights.             |
+| `direction`           | `'right' \| 'left'`                     | `'right'`  | Edge new samples enter from.                                                        |
+| `prefill`             | `boolean`                               | `true`     | Pre-fill buffer with zeros so animation starts on the first push.                   |
+| `transitionDuration`  | `number`                                | `200`      | Per-sample animation duration in ms.                                                |
+| `transitionEasing`    | `EasingFunction \| EasingFactory`       | `linear`   | From `react-native-reanimated`.                                                     |
+| `fadeIn`              | `number`                                | `0`        | Bars at the entry edge that fade in (alpha 0→1). Pure opacity. Try `2`–`5`.         |
+| `fadeOut`             | `number`                                | `0`        | Bars at the exit edge that fade out (alpha 1→0).                                    |
+| `growIn`              | `number`                                | `0`        | _(Unstable, see warning above.)_ Entry-edge height envelope.                         |
+| `growOut`             | `number`                                | `0`        | _(Unstable, see warning above.)_ Exit-edge height envelope.                          |
+| `smoothScroll`        | `boolean`                               | `true`     | `scroll` mode only.                                                                 |
+| `scrollDuration`      | `number`                                | -          | **Deprecated** - use `transitionDuration`.                                          |
+
+The component exposes an imperative ref handle:
+
+```ts
+type RecorderWaveformHandle = {
+  push: (amplitude: number | readonly number[]) => void;
+  reset: () => void;
+};
+```
+
+## Playground
+
+<RecorderPlayground />

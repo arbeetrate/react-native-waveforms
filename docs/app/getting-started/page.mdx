@@ -1,0 +1,69 @@
+---
+title: Getting started
+---
+
+# Getting started
+
+## Install
+
+```sh
+# Expo
+npx expo install react-native-waveforms react-native-svg react-native-reanimated react-native-worklets
+
+# Bare React Native
+npm install react-native-waveforms react-native-svg react-native-reanimated react-native-worklets
+# or
+yarn add react-native-waveforms react-native-svg react-native-reanimated react-native-worklets
+```
+
+Follow the setup guide for each peer dependency:
+
+- [`react-native-reanimated`](https://docs.swmansion.com/react-native-reanimated/docs/fundamentals/getting-started)
+  (also wires up `react-native-worklets`)
+- [`react-native-svg`](https://github.com/software-mansion/react-native-svg#installation)
+
+## Peer dependencies
+
+| Package                   | Version    |
+| ------------------------- | ---------- |
+| `react`                   | `>=18`     |
+| `react-native`            | `>=0.81`   |
+| `react-native-reanimated` | `>=4.0.0`  |
+| `react-native-svg`        | `>=15`     |
+| `react-native-worklets`   | `>=0.3.0`  |
+
+## Your first waveform
+
+Pass any array of amplitudes in `[0, 1]`:
+
+```tsx
+import { Waveform } from 'react-native-waveforms';
+
+const samples = [0.1, 0.4, 0.8, 0.6, 0.3, 0.5, 0.9, 0.4, 0.2];
+
+export function Example() {
+  return (
+    <Waveform
+      samples={samples}
+      width={320}
+      height={80}
+      color="#2563eb"
+      gap={2}
+      rounded
+    />
+  );
+}
+```
+
+If your data is in another range (e.g. `[-160, 0]` dBFS), use `inputRange`
+to remap:
+
+```tsx
+<Waveform samples={dbValues} inputRange={[-160, 0]} width={320} height={80} />
+```
+
+## Where to next
+
+- [`<Waveform>` playground](/components/waveform/)
+- [`<PlayerWaveform>` playground](/components/player-waveform/)
+- [`<RecorderWaveform>` playground](/components/recorder-waveform/)

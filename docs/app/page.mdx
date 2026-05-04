@@ -1,0 +1,37 @@
+---
+title: react-native-waveforms
+---
+
+# react-native-waveforms
+
+Cross-platform audio waveform visualizer for **React Native**, **Expo** and
+**Web**. Static, live recording and live playback modes - rendered with
+[`react-native-svg`](https://github.com/software-mansion/react-native-svg)
+and animated on the UI thread with
+[`react-native-reanimated`](https://github.com/software-mansion/react-native-reanimated).
+
+The package is **rendering-only** - you bring the audio data (an amplitude
+array, a sample callback, or a playback position) and the component draws
+it. No `expo-av` / `expo-audio` dependency is pulled in, so you can pair it
+with whatever audio engine you already use.
+
+## What's in the box
+
+- **`<Waveform>`** - render a fixed amplitude array as bars, line, or area.
+- **`<PlayerWaveform>`** - adds a UI-thread-animated progress fill on top.
+- **`<RecorderWaveform>`** - imperative `push(amplitude)` API for live meters.
+- Three built-in renderers (bars / line / area) or pass your own.
+- Hover / tap interactivity with a customisable active bar.
+- Linear gradient fills via the `WaveformColor` API.
+- Built-in scroll vs morph transitions, fade vs grow edge effects.
+
+## Try it
+
+Each component page ships with an **interactive playground** - tweak props
+live and watch the waveform respond.
+
+- [Getting started →](/getting-started/)
+- [`<Waveform>` →](/components/waveform/)
+- [`<PlayerWaveform>` →](/components/player-waveform/)
+- [`<RecorderWaveform>` →](/components/recorder-waveform/)
+- [Full API reference →](/api/)

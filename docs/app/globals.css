@@ -1,0 +1,54 @@
+/* Nextra and Mantine each ship their own surface / text tokens. We want
+ * playground sections to blend with the Nextra page rather than look
+ * like a separate design system. Bridge them by:
+ *  - forcing the body bg to Nextra's value (Mantine sets its own otherwise),
+ *  - inheriting text color into Mantine inputs and labels,
+ *  - making input surfaces transparent so they pick up the panel bg. */
+html,
+body {
+  background: rgb(var(--nextra-bg)) !important;
+}
+
+:root {
+  --mantine-color-body: rgb(var(--nextra-bg));
+}
+
+/* Inputs (Select, NumberInput, ColorInput, TextInput) - let them inherit
+ * their text color from Nextra's typography so dark/light modes match. */
+.mantine-Input-input,
+.mantine-InputBase-input {
+  color: inherit;
+  background-color: transparent;
+}
+
+/* Mantine `Select` dropdown options also inherit current text color so
+ * they read correctly in dark mode. */
+.mantine-Select-option,
+.mantine-Combobox-option {
+  color: inherit;
+}
+
+/* Switch / Slider labels and helper text - explicit `c="dimmed"` is
+ * applied where we want the secondary tone; everything else inherits. */
+.mantine-Switch-label,
+.mantine-InputWrapper-label,
+.mantine-Input-label {
+  color: inherit;
+}
+
+/* Nextra's default search input is sized for big SaaS docs (w-64,
+ * px-3 py-2, text-base / md:text-sm). Trim it down so it doesn't
+ * dominate the navbar. */
+.nextra-search input {
+  font-size: 12px;
+  padding: 8px 12px;
+  line-height: 1.4;
+}
+.nextra-search input::placeholder {
+  font-size: 12px;
+}
+@media (min-width: 768px) {
+  .nextra-search input {
+    width: 14rem !important;
+  }
+}
