@@ -1,6 +1,8 @@
 # react-native-waveforms
 
-> **Status:** `0.1.0` - first public release. Future fixes ship as `0.1.x` patches.
+> **Status:** `0.1.x` - public release. Future fixes ship as `0.1.x` patches.
+
+📖 **Documentation + interactive playgrounds:** [waveforms.arbeetrate.com](https://waveforms.arbeetrate.com)
 
 Cross-platform audio waveform visualizer for **React Native**, **Expo** and **Web**. Static, live recording and live playback modes - rendered with [`react-native-svg`](https://github.com/software-mansion/react-native-svg) and animated on the UI thread with [`react-native-reanimated`](https://github.com/software-mansion/react-native-reanimated).
 
@@ -53,6 +55,8 @@ Follow the setup guide for each peer dependency:
 ## Usage
 
 ### Static - `<Waveform>`
+
+> 🎮 [Live playground →](https://waveforms.arbeetrate.com/components/waveform/)
 
 Render a fixed amplitude array. Amplitudes are expected in `[0, 1]` by default; use `inputRange` to remap from another scale (e.g. `[-160, 0]` dBFS).
 
@@ -127,6 +131,8 @@ Hover / tap interaction (turns on once `activeColor` is set):
 
 ### Playback - `<PlayerWaveform>`
 
+> 🎮 [Live playground →](https://waveforms.arbeetrate.com/components/player-waveform/)
+
 Wraps `<Waveform>` with a UI-thread animated progress fill. Drive it with a `progress` value (`0`–`1`) **or** a `positionMs` + `durationMs` pair.
 
 ```tsx
@@ -147,6 +153,9 @@ import { PlayerWaveform } from 'react-native-waveforms';
 When `isPlaying` is `true` the progress animates smoothly toward the next position on the UI thread, so dropped JS frames don't stutter the bar.
 
 ### Live recording - `<RecorderWaveform>`
+
+> 🎮 [Live playground →](https://waveforms.arbeetrate.com/components/recorder-waveform/)
+
 
 Imperative API: keep a ref, call `push(amplitude)` whenever your meter ticks (mic level, peak meter, etc.).
 

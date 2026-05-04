@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.2] - 2026-05-04
+
+### Added
+
+- Public documentation site with live, interactive playgrounds at
+  [waveforms.arbeetrate.com](https://waveforms.arbeetrate.com).
+  Each component (`<Waveform>`, `<PlayerWaveform>`, `<RecorderWaveform>`)
+  has its own page with prop tables, code samples and a fully wired
+  playground that imports the library and lets you tweak every prop.
+- README links the docs site at the top and from each component's
+  usage section.
+- `package.json#homepage` now points to the docs site.
+
 ## [0.1.1] - 2026-05-04
 
 ### Fixed
@@ -81,6 +94,7 @@ First public release candidate. Public API may still shift before `0.1.0`.
   `react-native-reanimated >=4.0.0`, `react-native-svg >=15`,
   `react-native-worklets >=0.3.0`.
 
+[0.1.2]: https://github.com/arbeetrate/react-native-waveforms/releases/tag/v0.1.2
 [0.1.1]: https://github.com/arbeetrate/react-native-waveforms/releases/tag/v0.1.1
 [0.1.0]: https://github.com/arbeetrate/react-native-waveforms/releases/tag/v0.1.0
 [0.1.0-rc.2]: https://github.com/arbeetrate/react-native-waveforms/releases/tag/v0.1.0-rc.2

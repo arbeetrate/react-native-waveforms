@@ -1,6 +1,6 @@
 {
   "name": "react-native-waveforms",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Cross-platform audio waveform visualizer for React Native, Expo and Web. Static, live recording and playback modes.",
   "main": "./lib/module/index.js",
   "types": "./lib/typescript/src/index.d.ts",
@@ -58,7 +58,7 @@
   "bugs": {
     "url": "https://github.com/arbeetrate/react-native-waveforms/issues"
   },
-  "homepage": "https://github.com/arbeetrate/react-native-waveforms#readme",
+  "homepage": "https://waveforms.arbeetrate.com",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/",
     "access": "public",
