@@ -1,0 +1,15 @@
+lib/
+node_modules/
+**/node_modules/
+.next/
+**/.next/
+docs/out/
+.turbo/
+**/.turbo/
+example/dist/
+example/.expo/
+example/android/build/
+example/android/app/build/
+example/ios/build/
+*.log
+.DS_Store
