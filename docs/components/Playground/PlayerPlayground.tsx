@@ -1,11 +1,5 @@
 'use client';
-import {
-  ColorInput,
-  NumberInput,
-  Select,
-  Slider,
-  Switch,
-} from '@mantine/core';
+import { ColorInput, NumberInput, Select, Slider, Switch } from '@mantine/core';
 import { useEffect, useMemo, useState } from 'react';
 import { PlayerWaveform, type WaveformColor } from 'react-native-waveforms';
 import { sampleAmplitudes } from '../sample-data';
@@ -29,6 +23,9 @@ export const PlayerPlayground = () => {
   const [progress, setProgress] = useState(0);
   const [durationMs, setDurationMs] = useState(4000);
   const [iteration, setIteration] = useState(0);
+  const [scrubbable, setScrubbable] = useState(true);
+  const [showActive, setShowActive] = useState(true);
+  const [activeColor, setActiveColor] = useState('#1d4ed8');
 
   useEffect(() => {
     if (!isPlaying) return;
@@ -63,6 +60,9 @@ export const PlayerPlayground = () => {
           progress={isPlaying ? undefined : progress}
           positionMs={isPlaying ? 0 : undefined}
           durationMs={isPlaying ? durationMs : undefined}
+          activeColor={showActive ? activeColor : undefined}
+          activeScale={renderer === 'bars' ? 1.4 : undefined}
+          onSeek={scrubbable ? setProgress : undefined}
         />
       </Stage>
       <ControlPanel>
@@ -106,8 +106,7 @@ export const PlayerPlayground = () => {
         <SliderField
           label="gap"
           value={gap}
-          description="Spacing between bars in px (bars renderer only)"
-        >
+          description="Spacing between bars in px (bars renderer only)">
           <Slider min={0} max={6} step={1} value={gap} onChange={setGap} />
         </SliderField>
         {renderer === 'bars' && (
@@ -150,8 +149,7 @@ export const PlayerPlayground = () => {
           <SliderField
             label="progress"
             value={progress.toFixed(2)}
-            description="Manual scrub position when paused, 0..1"
-          >
+            description="Manual scrub position when paused, 0..1">
             <Slider
               min={0}
               max={1}
@@ -170,6 +168,27 @@ export const PlayerPlayground = () => {
           max={1000}
           step={20}
         />
+        <Switch
+          label="scrubbable (onSeek)"
+          description="Tap or drag the waveform to seek; release commits"
+          checked={scrubbable}
+          onChange={(e) => setScrubbable(e.currentTarget.checked)}
+        />
+        <Switch
+          label="show active highlight"
+          description="Pass activeColor so the bar under the finger lights up"
+          checked={showActive}
+          onChange={(e) => setShowActive(e.currentTarget.checked)}
+        />
+        {showActive && (
+          <ColorInput
+            label="activeColor"
+            description="Highlight colour for the bar under the cursor"
+            value={activeColor}
+            onChange={setActiveColor}
+            format="hex"
+          />
+        )}
       </ControlPanel>
     </div>
   );

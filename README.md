@@ -152,6 +152,28 @@ import { PlayerWaveform } from 'react-native-waveforms';
 
 When `isPlaying` is `true` the progress animates smoothly toward the next position on the UI thread, so dropped JS frames don't stutter the bar.
 
+Pass an `onSeek` callback to make the waveform interactive. Users can tap or press-and-drag to scrub; the played fill follows the finger live, and `onSeek` fires once on release with the new progress in `[0, 1]`. While `isPlaying` is `true`, playback resumes from the new position automatically.
+
+```tsx
+const [progress, setProgress] = useState(0);
+
+<PlayerWaveform
+  samples={amplitudes}
+  width={320}
+  height={80}
+  color="#cbd5e1"
+  progressColor="#2563eb"
+  isPlaying={isPlaying}
+  positionMs={positionMs}
+  durationMs={totalMs}
+  activeColor="#1d4ed8"     // optional: highlight the bar under the finger
+  onSeek={(p) => {
+    setProgress(p);
+    audio.seekTo(p * totalMs);
+  }}
+/>
+```
+
 ### Live recording - `<RecorderWaveform>`
 
 > 🎮 [Live playground →](https://waveforms.arbeetrate.com/components/recorder-waveform/)
@@ -223,6 +245,7 @@ Inherits all `<Waveform>` props, plus:
 | `durationMs`        | `number`  | -         | Total duration in ms.                                              |
 | `isPlaying`         | `boolean` | `false`   | When `true`, progress animates on the UI thread to next frame.     |
 | `animationDuration` | `number`  | `200`     | Transition duration between progress values, in ms.                |
+| `onSeek`            | `(progress: number) => void` | - | Fires on release after a tap or drag. Providing it enables the touch / drag overlay; resumes playback from the new position when `isPlaying` is `true`. |
 
 ### `<RecorderWaveform>`
 

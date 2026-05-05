@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.3] - 2026-05-05
+
+### Added
+
+- `<PlayerWaveform>` is now interactive — pass an `onSeek(progress)`
+  callback to enable tap + drag scrubbing. The played fill follows the
+  finger live on the UI thread, and `onSeek` fires once on release with
+  the new progress in `[0, 1]`. While `isPlaying` is `true`, playback
+  resumes from the new position automatically (no consumer-side
+  re-toggle).
+- `<PlayerWaveform>` now forwards `activeColor` / `activeScale` /
+  `activePushRange` / `activeTransitionMs` to its renderer, mirroring
+  `<Waveform>`'s hover / touch overlay. Opt in alongside `onSeek` to
+  highlight the bar under the finger during a scrub.
+- New scrubbing demos in the example app and the
+  [`<PlayerWaveform>` playground](https://waveforms.arbeetrate.com/components/player-waveform/).
+
+### Changed
+
+- Internal: extracted `useActiveIndexFromX` shared hook so `<Waveform>`
+  and `<PlayerWaveform>` use the same x → sample-index logic. No
+  behaviour change for `<Waveform>`.
+
 ## [0.1.2] - 2026-05-04
 
 ### Added
@@ -94,6 +117,7 @@ First public release candidate. Public API may still shift before `0.1.0`.
   `react-native-reanimated >=4.0.0`, `react-native-svg >=15`,
   `react-native-worklets >=0.3.0`.
 
+[0.1.3]: https://github.com/arbeetrate/react-native-waveforms/releases/tag/v0.1.3
 [0.1.2]: https://github.com/arbeetrate/react-native-waveforms/releases/tag/v0.1.2
 [0.1.1]: https://github.com/arbeetrate/react-native-waveforms/releases/tag/v0.1.1
 [0.1.0]: https://github.com/arbeetrate/react-native-waveforms/releases/tag/v0.1.0

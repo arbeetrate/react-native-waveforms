@@ -1,11 +1,4 @@
-import {
-  useCallback,
-  useEffect,
-  useId,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import { useCallback, useEffect, useId, useMemo, useRef } from 'react';
 import {
   View,
   type GestureResponderEvent,
@@ -14,6 +7,7 @@ import {
 } from 'react-native';
 import Svg from 'react-native-svg';
 import type { WaveformProps } from '../types';
+import { useActiveIndexFromX } from '../hooks/useActiveIndexFromX';
 import { useProcessedSamples } from '../hooks/useProcessedSamples';
 import { builtInRenderers } from '../renderers';
 import { renderGradientDefs, resolveFill } from '../utils/resolveFill';
@@ -69,7 +63,10 @@ export const Waveform = ({
   );
 
   const interactive = activeColor !== undefined;
-  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const { activeIndex, updateFromX, clearActive } = useActiveIndexFromX(
+    processed.length,
+    width
+  );
   // Typed loosely - RN Web exposes the underlying DOM div on this ref,
   // RN native exposes the host component instance; we only call
   // `getBoundingClientRect` (web) so a permissive type is fine.
@@ -86,28 +83,6 @@ export const Waveform = ({
       activeIndex !== null ? processed[activeIndex] : undefined
     );
   }, [activeIndex, processed, onActiveSampleChange]);
-
-  const updateFromX = useCallback(
-    (x: number) => {
-      const count = processed.length;
-      if (count === 0 || width <= 0) {
-        setActiveIndex(null);
-        return;
-      }
-      if (x < 0 || x > width) {
-        setActiveIndex(null);
-        return;
-      }
-      const slot = width / count;
-      let idx = Math.floor(x / slot);
-      if (idx < 0) idx = 0;
-      if (idx >= count) idx = count - 1;
-      setActiveIndex(idx);
-    },
-    [processed.length, width]
-  );
-
-  const clearActive = useCallback(() => setActiveIndex(null), []);
 
   // Web hover handler. We measure the container via its ref (RN Web
   // forwards the underlying DOM div through forwardRef), then convert
@@ -167,7 +142,6 @@ export const Waveform = ({
 
   return (
     <View
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ref={containerRef as any}
       style={{ width, height }}
       // Native: track touch / drag. Responder catches touches anywhere

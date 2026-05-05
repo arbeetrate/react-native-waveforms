@@ -32,6 +32,39 @@ end on the UI thread, so dropped JS frames don't stutter the bar. While
 paused (or controlling progress directly), pass `progress={0..1}` to
 scrub.
 
+## Scrubbing (tap + drag to seek)
+
+Pass an `onSeek` callback to make the waveform interactive. Users can tap
+anywhere — or press and drag — to scrub; the played fill follows the
+finger live, and `onSeek` fires once on release with the new progress in
+`[0, 1]`. While `isPlaying` is `true`, playback resumes from the new
+position automatically.
+
+```tsx
+const [progress, setProgress] = useState(0);
+
+<PlayerWaveform
+  samples={amplitudes}
+  width={320}
+  height={80}
+  color="#cbd5e1"
+  progressColor="#2563eb"
+  isPlaying={isPlaying}
+  positionMs={positionMs}
+  durationMs={durationMs}
+  onSeek={(p) => {
+    setProgress(p);
+    audio.seekTo(p * durationMs);
+  }}
+/>
+```
+
+To also light up the bar under the finger (matching the
+[`<Waveform>`](/components/waveform/#hover--touch-feedback) hover effect),
+pass `activeColor` (and optionally `activeScale` / `activePushRange`).
+These props pass straight through from the underlying `<Waveform>` and
+only render once `onSeek` enables the touch overlay.
+
 ## Gradient progress
 
 `progressColor` accepts a `WaveformColor`, so the played-portion can be
@@ -64,6 +97,7 @@ fillOpacity, gradient/active props), plus:
 | `durationMs`        | `number`        | -           | Total duration in ms.                                                |
 | `isPlaying`         | `boolean`       | `false`     | When `true`, progress animates on the UI thread to the next frame.   |
 | `animationDuration` | `number`        | `200`       | Transition duration between manual progress values, in ms.           |
+| `onSeek`            | `(p: number) => void` | -     | Fires on release after a tap or drag. Providing it enables the touch/drag overlay. |
 
 ## Playground
 

@@ -99,6 +99,9 @@ export default function App() {
     []
   );
   useSharedFakeMeter(meterRefs);
+  const [scrubProgress, setScrubProgress] = useState(0.25);
+  const [playScrubStart, setPlayScrubStart] = useState(0);
+  const [playScrubKey, setPlayScrubKey] = useState(0);
 
   return (
     <ScrollView style={styles.scroll} contentContainerStyle={styles.container}>
@@ -271,6 +274,48 @@ export default function App() {
           isPlaying
           positionMs={0}
           durationMs={durationMs}
+        />
+      </Demo>
+
+      <Demo label="player · scrubbable (tap + drag to seek)">
+        <PlayerWaveform
+          samples={sampleAmplitudes}
+          width={WIDTH}
+          height={HEIGHT}
+          color="#cbd5e1"
+          progressColor="#2563eb"
+          gap={2}
+          rounded
+          progress={scrubProgress}
+          activeColor="#1d4ed8"
+          activeScale={1.4}
+          onSeek={setScrubProgress}
+        />
+      </Demo>
+
+      <Demo label="player · scrubbable while playing (drag mid-flight)">
+        <PlayerWaveform
+          key={`scrub-play-${playScrubKey}`}
+          samples={sampleAmplitudes}
+          width={WIDTH}
+          height={HEIGHT}
+          color="#e2e8f0"
+          progressColor={{
+            type: 'linear',
+            from: '#7c3aed',
+            to: '#ec4899',
+          }}
+          gap={2}
+          rounded
+          isPlaying
+          positionMs={playScrubStart * 8000}
+          durationMs={8000}
+          activeColor="#5b21b6"
+          activeScale={1.4}
+          onSeek={(p) => {
+            setPlayScrubStart(p);
+            setPlayScrubKey((k) => k + 1);
+          }}
         />
       </Demo>
 

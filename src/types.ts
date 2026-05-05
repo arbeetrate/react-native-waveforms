@@ -104,6 +104,12 @@ export type PlayerWaveformProps = WaveformProps & {
   positionMs?: number;
   durationMs?: number;
   isPlaying?: boolean;
+  /** Fired when the user releases after a tap or drag on the waveform.
+   * Receives the seeked-to progress in [0, 1]. Providing this prop
+   * enables the touch/drag overlay; omit it to keep the component
+   * read-only. While `isPlaying` is `true`, playback resumes from the
+   * new position automatically. */
+  onSeek?: (progress: number) => void;
 };
 
 export type RecorderTransition = 'scroll' | 'morph';
